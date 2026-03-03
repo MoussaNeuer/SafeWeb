@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>SafeWeb · Sécurité numérique interactive · Créé par Moussa LO</title>
+    
+    <!-- META TAGS pour SEO et partage -->
+    <meta name="description" content="SafeWeb est une plateforme éducative interactive pour apprendre à reconnaître le phishing et les injections SQL. Créé par Moussa LO.">
+    <meta name="keywords" content="cybersécurité, phishing, SQL injection, éducation, Sénégal, Moussa LO">
+    <meta name="author" content="Moussa LO">
+    <meta property="og:title" content="SafeWeb - Apprenez la cybersécurité">
+    <meta property="og:description" content="Plateforme interactive pour comprendre les menaces en ligne">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/00853F/FFFFFF?text=SafeWeb">
+    <meta property="og:url" content="https://moussa-lo.github.io/safeweb">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- FAVICON (simulé avec emoji) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='33' height='100' fill='%2300853F'/><rect x='33' width='34' height='100' fill='%23FCD116'/><rect x='67' width='33' height='100' fill='%23E31B23'/></svg>">
+    
+    <!-- FONTS & LIBRAIRIES -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <!-- NOTRE STYLE PRINCIPAL -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- SCRIPTS EXTERNES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- BARRE DE PROGRESSION DE LECTURE (nouveau) -->
+    <div class="reading-progress" id="readingProgress"></div>
+
+    <!-- NAVIGATION AMÉLIORÉE -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='13.33' height='40' fill='%2300853F'/%3E%3Crect x='13.33' width='13.33' height='40' fill='%23FCD116'/%3E%3Crect x='26.66' width='13.34' height='40' fill='%23E31B23'/%3E%3C/svg%3E" alt="Drapeau Sénégal">
+                <span>SafeWeb</span>
+                <span class="badge-version">v2.0</span>
+            </div>
+            
+            <!-- Menu desktop -->
+            <ul class="nav-links">
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#about">À propos</a></li>
+                <li><a href="#social">Réseaux</a></li>
+                <li><a href="#features">Outils</a></li>
+                <li><a href="#quiz">Quiz</a></li>
+                <li><a href="#game">Mini-jeu</a></li>
+                <li><a href="#progression">Progression</a></li>
+            </ul>
+            
+            <div class="nav-right">
+                <!-- Niveau affiché -->
+                <div class="level-badge" id="navLevel">
+                    <i class="fas fa-star"></i> <span>1</span>
+                </div>
+                
+                <!-- Boutons -->
+                <button id="darkModeToggle" class="theme-toggle" aria-label="Mode sombre">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Menu mobile -->
+        <div class="mobile-menu" id="mobileMenu">
+            <ul class="mobile-nav-links">
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#about">À propos</a></li>
+                <li><a href="#social">Réseaux sociaux</a></li>
+                <li><a href="#features">Outils interactifs</a></li>
+                <li><a href="#quiz">Quiz</a></li>
+                <li><a href="#game">Mini-jeu phishing</a></li>
+                <li><a href="#progression">Ma progression</a></li>
+                <li><a href="#leaderboard">Classement</a></li>
+                <li><a href="#nft">Mes NFTs</a></li>
+                <li><a href="#chat">Chat sécurisé</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- SECTION HERO (ACCUEIL) -->
+    <section id="accueil" class="hero">
+        <div class="container hero-content">
+            <div class="hero-text" data-aos="fade-up">
+                <div class="hero-greeting">
+                    <span class="welcome-badge">🇸🇳 Made in Sénégal by Moussa LO</span>
+                </div>
+                <h1>Ne laissez pas les <span class="gradient-text">cyberpirater</span> vous piéger</h1>
+                <p class="hero-sub">SafeWeb est la première plateforme éducative 100% frontend qui vous apprend à reconnaître le phishing et les injections SQL, de manière interactive et sans risque.</p>
+                
+                <div class="hero-stats">
+                    <span><i class="fas fa-users"></i> 15,284 apprenants</span>
+                    <span><i class="fas fa-shield-alt"></i> 0 données stockées</span>
+                    <span><i class="fas fa-globe"></i> 12 pays</span>
+                </div>
+                
+                <div class="hero-cta">
+                    <a href="#quiz" class="btn btn-primary"><i class="fas fa-play"></i> Commencer l'aventure</a>
+                    <a href="#about" class="btn btn-outline"><i class="fas fa-info-circle"></i> Découvrir</a>
+                </div>
+                
+                <!-- Badges de confiance -->
+                <div class="trust-badges">
+                    <span><i class="fas fa-certificate"></i> 100% gratuit</span>
+                    <span><i class="fas fa-lock"></i> Aucune collecte</span>
+                    <span><i class="fas fa-mobile-alt"></i> Mobile first</span>
+                </div>
+            </div>
+            
+            <div class="hero-image" data-aos="fade-up" data-aos-delay="200">
+                <div class="image-container">
+                    <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Sécurité numérique" class="rounded-image">
+                    <div class="image-caption">
+                        <i class="fas fa-shield"></i> Plus de 15 000 utilisateurs nous font confiance
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Indicateur de scroll -->
+        <div class="scroll-indicator">
+            <span>Découvrir</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- SECTION À PROPOS DÉTAILLÉE -->
+    <section id="about" class="section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Notre mission</span>
+                <h2>Une prise de conscience collective</h2>
+                <p class="section-desc">Créé par <strong class="highlight">Moussa LO</strong>, SafeWeb rend la cybersécurité accessible à tous, sans jargon technique, directement depuis votre mobile.</p>
+            </div>
+            
+            <!-- Statistiques clés -->
+            <div class="stats-grid" data-aos="fade-up">
+                <div class="stat-card">
+                    <div class="stat-number" id="statUsers">0</div>
+                    <div class="stat-label">Utilisateurs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statQuiz">0</div>
+                    <div class="stat-label">Quiz complétés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statPhishing">0</div>
+                    <div class="stat-label">Phishing détectés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statBadges">0</div>
+                    <div class="stat-label">Badges gagnés</div>
+                </div>
+            </div>
+            
+            <!-- Valeurs -->
+            <div class="about-grid" data-aos="fade-up" data-aos-delay="100">
+                <div class="about-card">
+                    <div class="card-icon"><i class="fas fa-bullseye"></i></div>
+                    <h3>Notre vision</h3>
+                    <p>Démocratiser la cybersécurité en proposant des simulations réalistes mais inoffensives pour que chacun puisse apprendre sans risque.</p>
+                </div>
+                <div class="about-card">
+                    <div class="card-icon"><i class="fas fa-heart"></i></div>
+                    <h3>Nos valeurs</h3>
+                    <p>Pédagogie, transparence, accessibilité. Aucune donnée personnelle n'est collectée, tout se passe dans votre navigateur.</p>
+                </div>
+                <div class="about-card">
+                    <div class="card-icon"><i class="fas fa-rocket"></i></div>
+                    <h3>Notre engagement</h3>
+                    <p>Vous fournir des outils pratiques et immédiats pour sécuriser votre vie numérique, avec un suivi personnalisé de vos progrès.</p>
+                </div>
+            </div>
+            
+            <!-- Timeline du projet -->
+            <div class="timeline" data-aos="fade-up">
+                <h3>Notre histoire</h3>
+                <div class="timeline-items">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Jan 2026</div>
+                        <div class="timeline-content">Lancement de SafeWeb v1.0</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Mar 2026</div>
+                        <div class="timeline-content">+10 000 utilisateurs</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Juil 2026</div>
+                        <div class="timeline-content">Version 2.0 avec NFTs et mini-jeu</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION VIDÉOS EXPLICATIVES -->
+    <section id="videos" class="section alt-bg">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Apprendre en vidéo</span>
+                <h2>Comprendre en 2 minutes</h2>
+                <p class="section-desc">Des explications claires et animées pour visualiser les menaces.</p>
+            </div>
+            
+            <div class="video-grid" data-aos="fade-up">
+                <div class="video-card">
+                    <div class="video-wrapper">
+                        <iframe src="https://www.youtube.com/embed/7l4J7H6Oo3E" title="Qu'est-ce que le phishing ?" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>Le phishing expliqué simplement</h3>
+                        <p>Comprendre les bases du hameçonnage</p>
+                        <span class="video-duration">2:30 min</span>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-wrapper">
+                        <iframe src="https://www.youtube.com/embed/ciNHn38l8jg" title="Les injections SQL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>Comprendre l'injection SQL</h3>
+                        <p>Comment les hackers exploitent les failles</p>
+                        <span class="video-duration">3:15 min</span>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-wrapper">
+                        <iframe src="https://www.youtube.com/embed/_P9zrDq9F_U" title="Sécurité sur les réseaux" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>Réseaux sociaux : les pièges</h3>
+                        <p>Comment repérer les arnaques</p>
+                        <span class="video-duration">2:45 min</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bouton voir plus -->
+            <div class="text-center" data-aos="fade-up">
+                <button class="btn btn-outline" id="loadMoreVideos">
+                    <i class="fas fa-plus"></i> Voir plus de vidéos
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION RÉSEAUX SOCIAUX AVEC CARROUSEL -->
+    <section id="social" class="section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Phishing sur les réseaux</span>
+                <h2>Reconnaître les pièges tendance</h2>
+                <p class="section-desc">Faites glisser pour voir des exemples concrets sur chaque plateforme. Apprenez à les démasquer.</p>
+            </div>
+            
+            <!-- Filtres par plateforme -->
+            <div class="social-filters" data-aos="fade-up">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="instagram"><i class="fab fa-instagram"></i> Instagram</button>
+                <button class="filter-btn" data-filter="facebook"><i class="fab fa-facebook"></i> Facebook</button>
+                <button class="filter-btn" data-filter="snapchat"><i class="fab fa-snapchat"></i> Snapchat</button>
+                <button class="filter-btn" data-filter="twitter"><i class="fab fa-twitter"></i> Twitter</button>
+                <button class="filter-btn" data-filter="tiktok"><i class="fab fa-tiktok"></i> TikTok</button>
+                <button class="filter-btn" data-filter="linkedin"><i class="fab fa-linkedin"></i> LinkedIn</button>
+            </div>
+            
+            <!-- Swiper carrousel -->
+            <div class="swiper social-swiper" data-aos="fade-up">
+                <div class="swiper-wrapper">
+                    <!-- Instagram -->
+                    <div class="swiper-slide" data-platform="instagram">
+                        <div class="social-card">
+                            <div class="card-header">
+                                <i class="fab fa-instagram"></i> Instagram
+                                <span class="risk-badge">Élevé</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Faux message Instagram" class="social-img" loading="lazy">
+                            <div class="message-preview">
+                                <div class="message-sender">Instagram Sécurité</div>
+                                <div class="message-content">🔴 Votre compte sera désactivé dans 24h. Cliquez pour vérifier.</div>
+                                <div class="message-link suspect">http://instagram-verif.com/login</div>
+                            </div>
+                            <div class="analysis">
+                                <i class="fas fa-search"></i>
+                                <span>Domaine suspect "verif.com", urgence factice</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="xp-value">+5 XP</span>
+                                <button class="btn-small analyze-btn" data-id="ig1">Analyser</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Facebook -->
+                    <div class="swiper-slide" data-platform="facebook">
+                        <div class="social-card">
+                            <div class="card-header">
+                                <i class="fab fa-facebook"></i> Facebook
+                                <span class="risk-badge">Critique</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Faux message Facebook" class="social-img" loading="lazy">
+                            <div class="message-preview">
+                                <div class="message-sender">Facebook Support</div>
+                                <div class="message-content">🔒 Connexion inhabituelle détectée. Sécurisez votre compte.</div>
+                                <div class="message-link suspect">http://facebook.com-login.xyz/secure</div>
+                            </div>
+                            <div class="analysis">
+                                <i class="fas fa-search"></i>
+                                <span>Sous-domaine trompeur, extension .xyz</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="xp-value">+5 XP</span>
+                                <button class="btn-small analyze-btn" data-id="fb1">Analyser</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Snapchat -->
+                    <div class="swiper-slide" data-platform="snapchat">
+                        <div class="social-card">
+                            <div class="card-header">
+                                <i class="fab fa-snapchat"></i> Snapchat
+                                <span class="risk-badge">Élevé</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1611162616305-c69d3a6c6e1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Faux message Snapchat" class="social-img" loading="lazy">
+                            <div class="message-preview">
+                                <div class="message-sender">Team Snapchat</div>
+                                <div class="message-content">👻 Quelqu'un a tenté de se connecter à ton compte.</div>
+                                <div class="message-link suspect">http://snapchat-verif.tk/secure</div>
+                            </div>
+                            <div class="analysis">
+                                <i class="fas fa-search"></i>
+                                <span>Extension .tk (gratuite) souvent malveillante</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="xp-value">+5 XP</span>
+                                <button class="btn-small analyze-btn" data-id="sc1">Analyser</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Twitter -->
+                    <div class="swiper-slide" data-platform="twitter">
+                        <div class="social-card">
+                            <div class="card-header">
+                                <i class="fab fa-twitter"></i> Twitter
+                                <span class="risk-badge">Élevé</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1611605698335-8b1569810432?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Faux message Twitter" class="social-img" loading="lazy">
+                            <div class="message-preview">
+                                <div class="message-sender">Twitter Support</div>
+                                <div class="message-content">🐦 Votre compte a été suspendu. Réactivez-le maintenant.</div>
+                                <div class="message-link suspect">http://twitter.com-login.help/verify</div>
+                            </div>
+                            <div class="analysis">
+                                <i class="fas fa-search"></i>
+                                <span>Utilisation du nom Twitter dans sous-domaine</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="xp-value">+5 XP</span>
+                                <button class="btn-small analyze-btn" data-id="tw1">Analyser</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TikTok -->
+                    <div class="swiper-slide" data-platform="tiktok">
+                        <div class="social-card">
+                            <div class="card-header">
+                                <i class="fab fa-tiktok"></i> TikTok
+                                <span class="risk-badge">Moyen</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1611605698343-f5c5b3b9b7b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Faux message TikTok" class="social-img" loading="lazy">
+                            <div class="message-preview">
+                                <div class="message-sender">TikTok Verification</div>
+                                <div class="message-content">🎵 Gagnez des followers instantanément ! Cliquez ici.</div>
+                                <div class="message-link suspect">http://tiktok-free-followers.ml</div>
+                            </div>
+                            <div class="analysis">
+                                <i class="fas fa-search"></i>
+                                <span>Offre trop belle pour être vraie, extension .ml</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="xp-value">+5 XP</span>
+                                <button class="btn-small analyze-btn" data-id="tk1">Analyser</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- LinkedIn -->
+                    <div class="swiper-slide" data-platform="linkedin">
+                        <div class="social-card">
+                            <div class="card-header">
+                                <i class="fab fa-linkedin"></i> LinkedIn
+                                <span class="risk-badge">Élevé</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1611162616305-c69d3a6c6e1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Faux message LinkedIn" class="social-img" loading="lazy">
+                            <div class="message-preview">
+                                <div class="message-sender">LinkedIn Jobs</div>
+                                <div class="message-content">💼 Offre d'emploi exceptionnelle avec salaire de 5000€/mois</div>
+                                <div class="message-link suspect">http://linkedin-jobs-apply.cf</div>
+                            </div>
+                            <div class="analysis">
+                                <i class="fas fa-search"></i>
+                                <span>Salaire irréaliste, domaine .cf suspect</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="xp-value">+5 XP</span>
+                                <button class="btn-small analyze-btn" data-id="li1">Analyser</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+            
+            <!-- Statistiques des menaces -->
+            <div class="threat-stats" data-aos="fade-up">
+                <h3>Menaces détectées cette semaine</h3>
+                <div class="threat-bars">
+                    <div class="threat-bar">
+                        <span>Instagram</span>
+                        <div class="bar-container"><div class="bar" style="width: 75%"></div></div>
+                        <span>75%</span>
+                    </div>
+                    <div class="threat-bar">
+                        <span>Facebook</span>
+                        <div class="bar-container"><div class="bar" style="width: 82%"></div></div>
+                        <span>82%</span>
+                    </div>
+                    <div class="threat-bar">
+                        <span>Snapchat</span>
+                        <div class="bar-container"><div class="bar" style="width: 64%"></div></div>
+                        <span>64%</span>
+                    </div>
+                    <div class="threat-bar">
+                        <span>Twitter</span>
+                        <div class="bar-container"><div class="bar" style="width: 58%"></div></div>
+                        <span>58%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION OUTILS INTERACTIFS (FEATURES) -->
+    <section id="features" class="section alt-bg">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Boîte à outils</span>
+                <h2>Apprendre en pratiquant</h2>
+                <p class="section-desc">Des outils simples et visuels pour comprendre les mécanismes des attaques et les contrer.</p>
+            </div>
+            
+            <div class="features-grid">
+                <!-- Détecteur d'URL -->
+                <div class="feature-card" data-aos="fade-up">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-link feature-icon"></i>
+                        <span class="feature-badge">Nouveau</span>
+                    </div>
+                    <h3>Détecteur d'URL suspectes</h3>
+                    <p>Analysez n'importe quelle URL et obtenez un score de risque détaillé.</p>
+                    
+                    <div class="feature-demo">
+                        <div class="input-group">
+                            <input type="url" id="urlInput" placeholder="https://exemple.com" class="mobile-input">
+                            <button id="checkUrlBtn" class="btn-small"><i class="fas fa-shield"></i> Vérifier</button>
+                        </div>
+                        <div id="urlResult" class="feature-result">
+                            <i class="fas fa-info-circle"></i> Entrez une URL pour commencer
+                        </div>
+                        <div class="feature-history" id="urlHistory"></div>
+                    </div>
+                    
+                    <div class="feature-stats">
+                        <span><i class="fas fa-chart-line"></i> 1,234 analyses</span>
+                    </div>
+                </div>
+                
+                <!-- Simulateur SQL -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-database feature-icon"></i>
+                        <span class="feature-badge">Populaire</span>
+                    </div>
+                    <h3>Simulateur d'injection SQL</h3>
+                    <p>Testez la célèbre injection <code>' OR '1'='1</code> sans aucun danger.</p>
+                    
+                    <form id="sqlForm">
+                        <div class="input-group">
+                            <input type="text" id="username" placeholder="Nom d'utilisateur" value="admin" class="mobile-input">
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="password" placeholder="Mot de passe" value="' OR '1'='1" class="mobile-input">
+                        </div>
+                        <button type="submit" class="btn-small w-full"><i class="fas fa-flask"></i> Simuler l'attaque</button>
+                    </form>
+                    
+                    <div id="sqlResult" class="feature-result">
+                        <i class="fas fa-code"></i> La requête SQL apparaîtra ici
+                    </div>
+                    
+                    <div class="tip">
+                        <i class="fas fa-lightbulb"></i> Astuce: l'apostrophe ' peut casser une requête
+                    </div>
+                </div>
+                
+                <!-- Générateur de mots de passe -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-key feature-icon"></i>
+                        <span class="feature-badge">Sécurisé</span>
+                    </div>
+                    <h3>Générateur de mot de passe fort</h3>
+                    <p>Créez un mot de passe robuste instantanément, avec analyse de force.</p>
+                    
+                    <div class="feature-demo">
+                        <div class="password-display" id="passwordDisplay">MotDePasse$écure2026</div>
+                        <button id="generatePasswordBtn" class="btn-small w-full">
+                            <i class="fas fa-sync-alt"></i> Générer nouveau
+                        </button>
+                    </div>
+                    
+                    <!-- L'analyseur de force sera injecté ici par JS -->
+                    <div id="passwordStrength"></div>
+                    
+                    <div class="password-options">
+                        <label>
+                            <input type="checkbox" id="includeUppercase" checked> Majuscules
+                        </label>
+                        <label>
+                            <input type="checkbox" id="includeNumbers" checked> Chiffres
+                        </label>
+                        <label>
+                            <input type="checkbox" id="includeSymbols" checked> Symboles
+                        </label>
+                        <label>
+                            <input type="range" id="passwordLength" min="8" max="32" value="16"> 
+                            <span id="lengthValue">16</span> caractères
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Outils supplémentaires (2ème ligne) -->
+            <div class="features-grid secondary" data-aos="fade-up">
+                <!-- Analyseur de texte -->
+                <div class="feature-card">
+                    <i class="fas fa-file-alt feature-icon"></i>
+                    <h3>Analyseur de texte suspect</h3>
+                    <p>Collez un message pour détecter les signes de phishing.</p>
+                    <textarea id="textAnalyzer" placeholder="Collez votre texte ici..." rows="3" class="mobile-input"></textarea>
+                    <button id="analyzeTextBtn" class="btn-small">Analyser</button>
+                    <div id="textResult"></div>
+                </div>
+                
+                <!-- Vérificateur 2FA (simulé) -->
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt feature-icon"></i>
+                    <h3>Simulateur 2FA</h3>
+                    <p>Testez comment fonctionne la double authentification.</p>
+                    <div class="twofa-demo">
+                        <div class="twofa-code" id="twofaCode">123456</div>
+                        <button id="refresh2fa" class="btn-small"><i class="fas fa-redo"></i> Nouveau code</button>
+                        <input type="text" placeholder="Entrez le code" class="mobile-input">
+                        <button id="verify2fa" class="btn-small">Vérifier</button>
+                    </div>
+                </div>
+                
+                <!-- Test de connaissances rapide -->
+                <div class="feature-card">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <h3>Défi express</h3>
+                    <p>Identifiez si ce message est un phishing en 5 secondes.</p>
+                    <div id="quickChallenge">
+                        <p class="challenge-text">"Votre compte PayPal sera suspendu. Cliquez ici : http://paypal-verif.tk"</p>
+                        <div class="challenge-buttons">
+                            <button class="btn-small challenge-phishing">🎣 Phishing</button>
+                            <button class="btn-small challenge-legit">✅ Légitime</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION QUIZ COMPLET -->
+    <section id="quiz" class="section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Testez vos connaissances</span>
+                <h2>Quiz interactif adaptatif</h2>
+                <p class="section-desc">8 questions qui évoluent selon votre niveau. Score en direct, correction détaillée, et badges à la clé.</p>
+            </div>
+            
+            <div class="quiz-container" data-aos="fade-up">
+                <!-- En-tête du quiz avec infos -->
+                <div class="quiz-header">
+                    <div class="quiz-info">
+                        <span><i class="fas fa-star"></i> <span id="currentScore">0</span>/8</span>
+                        <span><i class="fas fa-tachometer-alt"></i> Difficulté: <span id="difficultyLevel">Normale</span></span>
+                    </div>
+                    <div class="quiz-timer" id="quizTimer">⏱️ 00:30</div>
+                </div>
+                
+                <!-- Barre de progression -->
+                <div class="quiz-progress">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                
+                <!-- Zone question -->
+                <div id="questionArea" class="question-area">Chargement des questions...</div>
+                
+                <!-- Zone options -->
+                <div id="optionsArea" class="options-grid"></div>
+                
+                <!-- Pied du quiz -->
+                <div class="quiz-footer">
+                    <div id="quizScore" class="quiz-score"></div>
+                    <div class="quiz-buttons">
+                        <button id="nextBtn" class="btn btn-primary" disabled>
+                            <i class="fas fa-arrow-right"></i> Suivant
+                        </button>
+                        <button id="resetQuizBtn" class="btn btn-outline">
+                            <i class="fas fa-redo-alt"></i> Rejouer
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Correction détaillée -->
+                <div id="quizCorrection" class="quiz-correction" style="display: none;"></div>
+                
+                <!-- Feedback après chaque réponse -->
+                <div id="answerFeedback" class="answer-feedback"></div>
+            </div>
+            
+            <!-- Statistiques du quiz -->
+            <div class="quiz-stats" data-aos="fade-up">
+                <div class="stat-item">
+                    <span class="stat-label">Meilleur score</span>
+                    <span class="stat-value" id="bestScore">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Tentatives</span>
+                    <span class="stat-value" id="attemptCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Taux de réussite</span>
+                    <span class="stat-value" id="successRate">0%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION MINI-JEU "TROUVE LE PHISHING" -->
+    <section id="game" class="section alt-bg">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Apprendre en s'amusant</span>
+                <h2>Mini-jeu : Trouvez le phishing</h2>
+                <p class="section-desc">Testez vos réflexes en identifiant les messages frauduleux. Gagnez des points et débloquez des badges !</p>
+            </div>
+            
+            <div class="game-wrapper" data-aos="fade-up">
+                <!-- Interface du jeu (remplie par JS) -->
+                <div id="phishingGame" class="phishing-game">
+                    <!-- Le JS générera le contenu -->
+                </div>
+                
+                <!-- Règles du jeu -->
+                <div class="game-rules">
+                    <h4><i class="fas fa-info-circle"></i> Comment jouer ?</h4>
+                    <ul>
+                        <li><i class="fas fa-check"></i> 3 vies par niveau</li>
+                        <li><i class="fas fa-check"></i> +10 points par bonne réponse</li>
+                        <li><i class="fas fa-check"></i> -1 vie par erreur</li>
+                        <li><i class="fas fa-check"></i> 5 niveaux à débloquer</li>
+                    </ul>
+                </div>
+                
+                <!-- High scores -->
+                <div class="high-scores">
+                    <h4><i class="fas fa-trophy"></i> Meilleurs scores</h4>
+                    <div id="highScoresList">
+                        <div class="score-item">1. Moussa - 250 pts</div>
+                        <div class="score-item">2. Amina - 210 pts</div>
+                        <div class="score-item">3. Omar - 180 pts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION PROGRESSION / XP / BADGES -->
+    <section id="progression" class="section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Votre progression</span>
+                <h2>Mon parcours de sensibilisation</h2>
+                <p class="section-desc">Suivez vos progrès, débloquez des badges et gagnez de l'expérience.</p>
+            </div>
+            
+            <div class="progression-grid" data-aos="fade-up">
+                <!-- Carte niveau -->
+                <div class="progression-card level-card">
+                    <h3>Niveau actuel</h3>
+                    <div class="level-display">
+                        <span class="level-number" id="userLevel">1</span>
+                        <span class="level-title">Novice</span>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar" id="xpBar" style="width: 0%"></div>
+                    </div>
+                    <div class="xp-info">
+                        <span id="currentXP">0</span> / <span id="xpToNext">100</span> XP
+                    </div>
+                </div>
+                
+                <!-- Carte badges -->
+                <div class="progression-card badges-card">
+                    <h3><i class="fas fa-medal"></i> Mes badges</h3>
+                    <div class="badges-grid" id="badgesContainer">
+                        <!-- Badges dynamiques -->
+                        <div class="badge-item locked">
+                            <i class="fas fa-lock"></i>
+                            <span>Débutant</span>
+                        </div>
+                        <div class="badge-item locked">
+                            <i class="fas fa-lock"></i>
+                            <span>Expert</span>
+                        </div>
+                        <div class="badge-item locked">
+                            <i class="fas fa-lock"></i>
+                            <span>Maître</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Carte statistiques -->
+                <div class="progression-card stats-card">
+                    <h3><i class="fas fa-chart-pie"></i> Mes statistiques</h3>
+                    <div class="stats-list">
+                        <div class="stat-row">
+                            <span>Quiz réussis</span>
+                            <span id="statQuizzes">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>URLs analysées</span>
+                            <span id="statUrls">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Parties jouées</span>
+                            <span id="statGames">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Temps d'apprentissage</span>
+                            <span id="statTime">0 min</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prochains défis -->
+            <div class="next-challenges" data-aos="fade-up">
+                <h3>Prochains défis à relever</h3>
+                <div class="challenges-list">
+                    <div class="challenge-item">
+                        <i class="fas fa-circle"></i>
+                        <span>Compléter le quiz avec 100%</span>
+                        <span class="challenge-xp">+50 XP</span>
+                    </div>
+                    <div class="challenge-item">
+                        <i class="fas fa-circle"></i>
+                        <span>Analyser 10 URLs suspectes</span>
+                        <span class="challenge-xp">+30 XP</span>
+                    </div>
+                    <div class="challenge-item">
+                        <i class="fas fa-circle"></i>
+                        <span>Gagner 3 parties du mini-jeu</span>
+                        <span class="challenge-xp">+40 XP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION CLASSEMENT -->
+    <section id="leaderboard" class="section alt-bg">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Compétition amicale</span>
+                <h2>Classement des apprenants</h2>
+                <p class="section-desc">Comparez votre progression avec la communauté.</p>
+            </div>
+            
+            <div class="leaderboard-tabs" data-aos="fade-up">
+                <button class="leaderboard-tab active" data-period="week">Cette semaine</button>
+                <button class="leaderboard-tab" data-period="month">Ce mois</button>
+                <button class="leaderboard-tab" data-period="all">Tout temps</button>
+            </div>
+            
+            <div id="leaderboardContainer" class="leaderboard-container" data-aos="fade-up">
+                <!-- Rempli par JS -->
+            </div>
+            
+            <!-- Votre position -->
+            <div class="user-rank" data-aos="fade-up">
+                <i class="fas fa-user"></i> Votre position: <span id="userRank">#42</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION VISUALISATION DE DONNÉES -->
+    <section id="data-viz" class="section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Statistiques en temps réel</span>
+                <h2>Visualisation des menaces</h2>
+                <p class="section-desc">Répartition des attaques par type et par plateforme.</p>
+            </div>
+            
+            <div class="charts-grid" data-aos="fade-up">
+                <div class="chart-card">
+                    <h3>Types d'attaques</h3>
+                    <canvas id="attackChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Évolution mensuelle</h3>
+                    <canvas id="trendChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Plateformes ciblées</h3>
+                    <canvas id="platformChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION NFT COLLECTION -->
+    <section id="nft" class="section alt-bg">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Collection numérique</span>
+                <h2>Mes NFTs de sensibilisation</h2>
+                <p class="section-desc">Chaque accomplissement vous donne droit à un NFT unique commémorant votre progression.</p>
+            </div>
+            
+            <div id="nftContainer" class="nft-grid" data-aos="fade-up">
+                <!-- Rempli par JS -->
+                <div class="nft-placeholder">
+                    <i class="fas fa-plus-circle"></i>
+                    <p>Complétez le quiz pour débloquer votre premier NFT</p>
+                </div>
+            </div>
+            
+            <div class="nft-info" data-aos="fade-up">
+                <p><i class="fas fa-info-circle"></i> Les NFTs sont des preuves numériques de vos compétences en cybersécurité. Chacun est unique et horodaté.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION CHAT SÉCURISÉ -->
+    <section id="chat" class="section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Communication sécurisée</span>
+                <h2>Chat de démonstration</h2>
+                <p class="section-desc">Testez notre chat qui détecte automatiquement les messages suspects.</p>
+            </div>
+            
+            <div class="chat-demo-container" data-aos="fade-up">
+                <!-- Le chat sera injecté ici par JS -->
+                <div id="chatDemo" class="chat-demo">
+                    <div class="chat-placeholder">
+                        <i class="fas fa-comments"></i>
+                        <p>Cliquez sur le bouton en bas à droite pour ouvrir le chat</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION BADGE ET CERTIFICAT -->
+    <section class="section alt-bg">
+        <div class="container">
+            <div class="badge-certificate-wrapper" data-aos="zoom-in">
+                <div class="badge-area">
+                    <div id="badgeIcon" class="badge-hidden">
+                        <i class="fas fa-medal"></i> Utilisateur sensibilisé
+                    </div>
+                    <p>Obtenez ce badge en réussissant le quiz avec un score ≥ 60%</p>
+                </div>
+                
+                <div class="certificate-area">
+                    <input type="text" id="userName" placeholder="Votre nom pour le certificat" class="mobile-input">
+                    <button id="generateCertBtn" class="btn btn-primary" disabled>
+                        <i class="fas fa-file-pdf"></i> Télécharger certificat
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Partage social -->
+            <div class="share-area" data-aos="fade-up">
+                <p>Partagez votre progression :</p>
+                <div class="share-buttons">
+                    <button class="share-btn twitter"><i class="fab fa-twitter"></i></button>
+                    <button class="share-btn facebook"><i class="fab fa-facebook"></i></button>
+                    <button class="share-btn linkedin"><i class="fab fa-linkedin"></i></button>
+                    <button class="share-btn whatsapp"><i class="fab fa-whatsapp"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION NEWSLETTER / CONTACT -->
+    <section class="section">
+        <div class="container">
+            <div class="newsletter-box" data-aos="fade-up">
+                <h3><i class="fas fa-envelope"></i> Restez informé</h3>
+                <p>Recevez des conseils de sécurité et les nouvelles fonctionnalités.</p>
+                <form id="newsletterForm" class="newsletter-form">
+                    <input type="email" placeholder="Votre email" class="mobile-input" required>
+                    <button type="submit" class="btn btn-primary">S'abonner</button>
+                </form>
+                <p class="disclaimer">Nous ne partageons jamais vos données. Désinscription à tout moment.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER COMPLET -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>SafeWeb</h4>
+                    <p>Plateforme éducative de cybersécurité créée par <strong>Moussa LO</strong> en 2026.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Liens rapides</h4>
+                    <ul>
+                        <li><a href="#accueil">Accueil</a></li>
+                        <li><a href="#about">À propos</a></li>
+                        <li><a href="#features">Outils</a></li>
+                        <li><a href="#quiz">Quiz</a></li>
+                        <li><a href="#game">Mini-jeu</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Ressources</h4>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Mentions légales</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> contact@safeweb.sn</p>
+                    <p><i class="fas fa-phone"></i> +221 78 123 45 67</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Dakar, Sénégal</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafeWeb. Tous droits réservés. Design aux couleurs du Sénégal.</p>
+                <p><i class="fas fa-heart" style="color: var(--senegal-red);"></i> Fièrement conçu au Sénégal</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BOUTONS FLOTTANTS -->
+    <button id="backToTop" class="back-to-top" title="Retour en haut">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <button id="panicButton" class="panic-button" title="Bouton panique">
+        <i class="fas fa-exclamation-triangle"></i>
+    </button>
+    
+    <button id="chatButton" class="chat-button" title="Chat sécurisé">
+        <i class="fas fa-comment"></i>
+    </button>
+    
+    <button id="statsButton" class="stats-button" title="Mes statistiques">
+        <i class="fas fa-chart-line"></i>
+    </button>
+
+    <!-- NOTRE SCRIPT PRINCIPAL -->
+    <script src="script.js"></script>
+</body>
+</html>
