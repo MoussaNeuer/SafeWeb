@@ -2355,3 +2355,163 @@ footer {
 @media (min-width: 1400px) {
     .container { max-width: 1400px; }
 }
+
+/* ==================== STYLES POUR LES POPUPS ==================== */
+.stats-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 32px;
+    box-shadow: var(--shadow-lg);
+    z-index: 10000;
+    max-width: 400px;
+    width: 90%;
+    border: 2px solid var(--senegal-green);
+    animation: slideDown 0.3s ease;
+}
+
+.stats-popup h3 {
+    margin: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+/* Amélioration du chat */
+.chat-container {
+    position: fixed;
+    bottom: 230px;
+    right: 20px;
+    width: 320px;
+    height: 450px;
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9997;
+    border: 2px solid var(--senegal-green);
+    animation: slideInRight 0.3s ease;
+}
+
+@media (max-width: 480px) {
+    .chat-container {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+        bottom: 200px;
+    }
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--light-gray);
+}
+
+.message {
+    max-width: 80%;
+    animation: fadeIn 0.3s;
+}
+
+.message.own {
+    align-self: flex-end;
+}
+
+.message.own div {
+    background: var(--senegal-green);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message:not(.own) div {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-bottom-left-radius: 4px;
+}
+
+/* Animation pour les boutons */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Bouton back to top amélioré */
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--senegal-green);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.back-to-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    background: #006b32;
+}
+
+/* Boutons flottants repositionnés */
+.panic-button {
+    bottom: 90px;
+}
+
+.chat-button {
+    bottom: 160px;
+}
+
+.stats-button {
+    bottom: 230px;
+}
+
+/* Hover effects */
+.panic-button:hover,
+.chat-button:hover,
+.stats-button:hover {
+    transform: scale(1.1) translateY(-5px);
+}
+
+/* Loader pour les popups */
+.popup-loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--light-gray);
+    border-top-color: var(--senegal-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 1rem auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

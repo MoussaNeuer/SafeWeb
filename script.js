@@ -16,24 +16,29 @@ document.addEventListener('DOMContentLoaded', function() {
     initNotifications();
     initPanicButton();
     initBehaviorAnalysis();
-    initSecureChat();
-    initSecurityNFT();
+    initBackToTop();
+    initStatsButton();
+    initChatButton();
+    
+    console.log('✅ SafeWeb initialisé avec succès !');
 });
 
-// ==================== FONCTIONS D'INITIALISATION ====================
-
+// ==================== AOS ====================
 function initAOS() {
-    AOS.init({
-        duration: 600,
-        once: true,
-        offset: 50,
-    });
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 600,
+            once: true,
+            offset: 50,
+        });
+    }
 }
 
+// ==================== MENU MOBILE ====================
 function initMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const mobileMenu = document.getElementById('mobileMenu');
-    if (menuToggle) {
+    if (menuToggle && mobileMenu) {
         menuToggle.addEventListener('click', () => {
             mobileMenu.classList.toggle('show');
         });
@@ -57,13 +62,17 @@ function initDarkMode() {
     }
 }
 
-// ==================== SWIPER CARROUSEL ====================
+// ==================== SWIPER ====================
 function initSwiper() {
-    if (document.querySelector('.social-swiper')) {
+    if (document.querySelector('.social-swiper') && typeof Swiper !== 'undefined') {
         new Swiper('.social-swiper', {
             slidesPerView: 1,
             spaceBetween: 20,
             pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
             breakpoints: {
                 640: { slidesPerView: 2 },
                 1024: { slidesPerView: 3 }
@@ -149,7 +158,6 @@ function initUrlChecker() {
             result.risk === 'douteux' ? 'var(--senegal-yellow)' : 
             'var(--senegal-red)';
         
-        // Track l'action pour l'analyse comportementale
         if (window.behaviorAnalyzer) {
             window.behaviorAnalyzer.trackAction({
                 type: 'url_check',
@@ -173,7 +181,6 @@ function initSqlSimulator() {
         const user = document.getElementById('username').value;
         const pass = document.getElementById('password').value;
         
-        // Échapper les caractères pour l'affichage
         const safeUser = user.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const safePass = pass.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         
@@ -183,15 +190,13 @@ function initSqlSimulator() {
         
         if (pass.includes("' OR '1'='1") || pass.includes("' OR 1=1") || 
             user.includes("' OR '1'='1") || user.includes("' OR 1=1")) {
-            html += `<br><span style="color: #ff8a8a; font-weight: bold;">➡️ INJECTION RÉUSSIE ! L'attaquant contourne l'authentification.</span>`;
-            html += `<br><span style="color: #fff; background: #e31b23; padding: 0.3rem 0.8rem; border-radius: 20px; display: inline-block; margin-top: 0.5rem;">⚠️ Ne jamais utiliser cette technique en vrai !</span>`;
+            html += `<br><span style="color: #ff8a8a; font-weight: bold;">➡️ INJECTION RÉUSSIE !</span>`;
         } else {
-            html += `<br><span style="color: #8aff8a;">➡️ Requête normale (aucune injection détectée).</span>`;
+            html += `<br><span style="color: #8aff8a;">➡️ Requête normale.</span>`;
         }
         
         sqlResult.innerHTML = html;
         
-        // Track pour analyse
         if (window.behaviorAnalyzer) {
             window.behaviorAnalyzer.trackAction({
                 type: 'sql_test',
@@ -202,7 +207,7 @@ function initSqlSimulator() {
     });
 }
 
-// ==================== GÉNÉRATEUR DE MOTS DE PASSE FORTS ====================
+// ==================== GÉNÉRATEUR DE MOT DE PASSE ====================
 function initPasswordGenerator() {
     const passwordDisplay = document.getElementById('passwordDisplay');
     const generateBtn = document.getElementById('generatePasswordBtn');
@@ -218,18 +223,15 @@ function initPasswordGenerator() {
         const allChars = lowercase + uppercase + numbers + symbols;
         let password = '';
         
-        // Garantir au moins un de chaque type
         password += lowercase[Math.floor(Math.random() * lowercase.length)];
         password += uppercase[Math.floor(Math.random() * uppercase.length)];
         password += numbers[Math.floor(Math.random() * numbers.length)];
         password += symbols[Math.floor(Math.random() * symbols.length)];
         
-        // Compléter jusqu'à 16 caractères
         for (let i = 4; i < 16; i++) {
             password += allChars[Math.floor(Math.random() * allChars.length)];
         }
         
-        // Mélanger le mot de passe
         return password.split('').sort(() => Math.random() - 0.5).join('');
     }
     
@@ -237,43 +239,35 @@ function initPasswordGenerator() {
         const newPassword = generateStrongPassword();
         passwordDisplay.textContent = newPassword;
         
-        // Copie automatique dans le presse-papier
         navigator.clipboard.writeText(newPassword).then(() => {
-            showNotification('✅ Mot de passe copié dans le presse-papier', 'success');
+            showNotification('✅ Mot de passe copié !', 'success');
         });
         
-        // Analyser la force
         const strength = analyzePasswordStrength(newPassword);
         updatePasswordStrengthIndicator(strength);
     });
 }
 
-// ==================== ANALYSEUR DE FORCE DE MOT DE PASSE ====================
+// ==================== ANALYSEUR DE MOT DE PASSE ====================
 function initPasswordStrengthChecker() {
-    // Ajouter un champ de test si nécessaire
     const container = document.querySelector('.feature-card:has(.password-display)');
     if (!container) return;
     
     const strengthDiv = document.createElement('div');
     strengthDiv.id = 'passwordStrength';
-    strengthDiv.className = 'password-strength';
     strengthDiv.style.marginTop = '1rem';
     container.querySelector('.feature-demo').appendChild(strengthDiv);
     
-    // Observer les changements de mot de passe
     const passwordDisplay = document.getElementById('passwordDisplay');
     if (passwordDisplay) {
-        const observer = new MutationObserver(() => {
-            const strength = analyzePasswordStrength(passwordDisplay.textContent);
-            updatePasswordStrengthIndicator(strength);
-        });
-        observer.observe(passwordDisplay, { childList: true, characterData: true, subtree: true });
+        const strength = analyzePasswordStrength(passwordDisplay.textContent);
+        updatePasswordStrengthIndicator(strength);
     }
 }
 
 function analyzePasswordStrength(password) {
     const criteria = [
-        { test: p => p.length >= 12, name: 'Longueur (≥12)', points: 20 },
+        { test: p => p.length >= 12, name: 'Longueur', points: 20 },
         { test: p => /[a-z]/.test(p), name: 'Minuscules', points: 15 },
         { test: p => /[A-Z]/.test(p), name: 'Majuscules', points: 15 },
         { test: p => /[0-9]/.test(p), name: 'Chiffres', points: 15 },
@@ -308,7 +302,7 @@ function updatePasswordStrengthIndicator(strength) {
     if (!div) return;
     
     div.innerHTML = `
-        <div style="background: #f0f0f0; border-radius: 10px; padding: 1rem;">
+        <div style="background: var(--light-gray); border-radius: 10px; padding: 1rem;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                 <span>Force: <strong style="color: ${strength.color}">${strength.level}</strong></span>
                 <span>Score: ${strength.score}/100</span>
@@ -316,16 +310,11 @@ function updatePasswordStrengthIndicator(strength) {
             <div style="width: 100%; height: 8px; background: #ddd; border-radius: 4px; overflow: hidden;">
                 <div style="width: ${strength.score}%; height: 100%; background: ${strength.color}; transition: width 0.3s;"></div>
             </div>
-            ${strength.failed.length > 0 ? `
-                <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
-                    <small>Améliorez: ${strength.failed.join(', ')}</small>
-                </div>
-            ` : ''}
         </div>
     `;
 }
 
-// ==================== SYSTÈME DE PROGRESSION/XP ====================
+// ==================== SYSTÈME DE PROGRESSION ====================
 class ProgressSystem {
     constructor() {
         this.loadProgress();
@@ -399,35 +388,13 @@ class ProgressSystem {
         };
         
         this.badges.push(badge);
-        this.showNotification(`🎉 FÉLICITATIONS ! Vous avez atteint le niveau ${this.level} !`, 'success');
-        
-        if (this.level === 5) this.unlockBadge('expert');
-        if (this.level === 10) this.unlockBadge('master');
-    }
-    
-    unlockBadge(badgeId) {
-        const badges = {
-            'expert': { name: 'Expert en cybersécurité', icon: '🏆' },
-            'master': { name: 'Maître de la sécurité', icon: '👑' },
-            'phishing_pro': { name: 'Chasseur de phishing', icon: '🎣' },
-            'sql_master': { name: 'Maître SQL', icon: '💾' },
-            'perfect_quiz': { name: 'Score parfait', icon: '💯' }
-        };
-        
-        if (!this.badges.find(b => b.id === badgeId)) {
-            this.badges.push({
-                id: badgeId,
-                ...badges[badgeId],
-                date: new Date().toISOString()
-            });
-            this.showNotification(`🏆 Badge débloqué : ${badges[badgeId].name} !`, 'success');
-        }
+        this.showNotification(`🎉 Niveau ${this.level} atteint !`, 'success');
     }
     
     showXPGain(amount, source) {
         const xpPopup = document.createElement('div');
         xpPopup.className = 'xp-popup';
-        xpPopup.innerHTML = `+${amount} XP (${source})`;
+        xpPopup.innerHTML = `+${amount} XP`;
         xpPopup.style.cssText = `
             position: fixed;
             top: 50%;
@@ -464,21 +431,225 @@ class ProgressSystem {
 function initProgressSystem() {
     window.progressSystem = new ProgressSystem();
     
-    // Ajouter l'affichage du niveau dans le header
-    const hero = document.querySelector('.hero-stats');
-    if (hero) {
-        const levelSpan = document.createElement('span');
-        levelSpan.id = 'levelDisplay';
-        levelSpan.innerHTML = `<i class="fas fa-star"></i> Niveau ${window.progressSystem.level}`;
-        hero.appendChild(levelSpan);
+    const levelDisplay = document.getElementById('navLevel')?.querySelector('span');
+    if (levelDisplay) {
+        levelDisplay.textContent = window.progressSystem.level;
         
         window.progressSystem.subscribe((progress) => {
-            levelSpan.innerHTML = `<i class="fas fa-star"></i> Niveau ${progress.level}`;
+            levelDisplay.textContent = progress.level;
         });
     }
 }
 
-// ==================== MINI-JEU "TROUVE LE PHISHING" ====================
+// ==================== QUIZ ====================
+const questions = [
+    { question: "Que signifie 'phishing' ?", options: ["Pêche aux informations", "Hameçonnage", "Virus", "Piratage de compte"], correct: 1 },
+    { question: "Signe typique d'un email de phishing ?", options: ["Message personnalisé", "Lien suspect", "Expéditeur connu", "Pièce jointe .txt"], correct: 1 },
+    { question: "Que fait une injection SQL ?", options: ["Insère du code malveillant", "Injecte un virus", "Supprime des fichiers", "Chiffre les données"], correct: 0 },
+    { question: "Comment protéger son compte ?", options: ["Mot de passe simple", "2FA", "Partager son mot de passe", "Même mot de passe"], correct: 1 },
+    { question: "Message suspect sur Instagram ?", options: ["Cliquer", "Ignorer/signaler", "Donner ses infos", "Partager"], correct: 1 },
+    { question: "Que signifie 'https' ?", options: ["Protocole sécurisé", "Site dangereux", "Virus", "Hacker"], correct: 0 },
+    { question: "Bon réflexe avant de cliquer ?", options: ["Survoler l'URL", "Cliquer sans vérifier", "Désactiver l'antivirus", "Copier-coller"], correct: 0 },
+    { question: "Extension souvent utilisée pour du phishing ?", options: [".com", ".org", ".tk", ".gov"], correct: 2 }
+];
+
+let current = 0, score = 0, selected = null, completed = false;
+
+function initQuiz() {
+    const qArea = document.getElementById('questionArea');
+    const optsArea = document.getElementById('optionsArea');
+    const nextBtn = document.getElementById('nextBtn');
+    const resetBtn = document.getElementById('resetQuizBtn');
+    const quizScore = document.getElementById('quizScore');
+    const correction = document.getElementById('quizCorrection');
+    const progress = document.getElementById('progressBar');
+    const badge = document.getElementById('badgeIcon');
+    const certBtn = document.getElementById('generateCertBtn');
+    
+    if (!qArea) return;
+    
+    function render() {
+        if (completed) return;
+        const q = questions[current];
+        qArea.innerText = q.question;
+        optsArea.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<i class="fas fa-circle"></i> ${opt}`;
+            btn.onclick = () => select(i);
+            optsArea.appendChild(btn);
+        });
+        progress.style.width = `${(current / questions.length) * 100}%`;
+        nextBtn.disabled = true;
+    }
+    
+    function select(idx) {
+        if (completed) return;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('.option-btn')[idx].classList.add('selected');
+        selected = idx;
+        nextBtn.disabled = false;
+    }
+    
+    function next() {
+        if (completed) return;
+        if (selected === questions[current].correct) score++;
+        current++;
+        if (current < questions.length) render();
+        else end();
+        selected = null;
+    }
+    
+    function end() {
+        completed = true;
+        qArea.innerText = 'Quiz terminé !';
+        optsArea.innerHTML = '';
+        nextBtn.disabled = true;
+        progress.style.width = '100%';
+        const percent = (score / questions.length) * 100;
+        quizScore.innerHTML = `Score : ${score}/${questions.length} (${Math.round(percent)}%)`;
+        let html = '<h4>Correction :</h4><ul>';
+        questions.forEach((q, i) => html += `<li><strong>Q${i+1}:</strong> ${q.options[q.correct]}</li>`);
+        html += '</ul>';
+        correction.innerHTML = html;
+        correction.style.display = 'block';
+        
+        if (percent >= 60) {
+            badge.classList.add('badge-visible');
+            certBtn.disabled = false;
+            if (window.progressSystem) window.progressSystem.addXP(50, 'quiz');
+        } else {
+            badge.classList.remove('badge-visible');
+            certBtn.disabled = true;
+        }
+    }
+    
+    function resetQuiz() {
+        current = 0; score = 0; selected = null; completed = false;
+        render();
+        quizScore.innerHTML = '';
+        correction.innerHTML = '';
+        correction.style.display = 'none';
+        badge.classList.remove('badge-visible');
+        certBtn.disabled = true;
+    }
+    
+    nextBtn.addEventListener('click', next);
+    resetBtn.addEventListener('click', resetQuiz);
+    render();
+}
+
+// ==================== NOTIFICATIONS ====================
+class NotificationSystem {
+    constructor() {
+        this.notifications = [];
+        this.container = this.createContainer();
+    }
+    
+    createContainer() {
+        const div = document.createElement('div');
+        div.id = 'notificationContainer';
+        div.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            width: 300px;
+        `;
+        document.body.appendChild(div);
+        return div;
+    }
+    
+    showInApp(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            background: ${type === 'success' ? '#00853F' : 
+                         type === 'warning' ? '#FCD116' : 
+                         type === 'danger' ? '#E31B23' : 
+                         '#334155'};
+            color: ${type === 'warning' ? '#000' : '#fff'};
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        `;
+        
+        const icons = {
+            success: '<i class="fas fa-check-circle"></i>',
+            warning: '<i class="fas fa-exclamation-triangle"></i>',
+            danger: '<i class="fas fa-times-circle"></i>',
+            info: '<i class="fas fa-info-circle"></i>'
+        };
+        
+        notification.innerHTML = `
+            ${icons[type] || icons.info}
+            <div style="flex: 1;">${message}</div>
+            <i class="fas fa-times" style="opacity: 0.7; font-size: 0.9rem;"></i>
+        `;
+        
+        notification.addEventListener('click', () => notification.remove());
+        this.container.appendChild(notification);
+        
+        setTimeout(() => notification.remove(), 5000);
+    }
+}
+
+function initNotifications() {
+    window.notificationSystem = new NotificationSystem();
+}
+
+// ==================== ANALYSEUR DE COMPORTEMENT ====================
+class BehaviorAnalyzer {
+    constructor() {
+        this.actions = JSON.parse(localStorage.getItem('behavior_actions')) || [];
+        this.riskyPatterns = JSON.parse(localStorage.getItem('risky_patterns')) || [];
+    }
+    
+    trackAction(action) {
+        this.actions.push(action);
+        localStorage.setItem('behavior_actions', JSON.stringify(this.actions.slice(-100)));
+        this.analyzeRiskyPatterns();
+    }
+    
+    analyzeRiskyPatterns() {
+        this.riskyPatterns = [];
+        
+        const suspiciousClicks = this.actions.filter(a => a.type === 'url_check' && (a.riskScore || 0) > 50);
+        if (suspiciousClicks.length > 3) {
+            this.riskyPatterns.push({
+                type: 'multiple_suspicious_clicks',
+                severity: 'high',
+                message: 'Vous cliquez souvent sur des liens suspects !'
+            });
+        }
+        
+        localStorage.setItem('risky_patterns', JSON.stringify(this.riskyPatterns));
+    }
+    
+    getStats() {
+        return {
+            totalActions: this.actions.length,
+            suspiciousClicks: this.actions.filter(a => a.type === 'url_check' && (a.riskScore || 0) > 50).length,
+            sqlAttempts: this.actions.filter(a => a.type === 'sql_test' && a.injection).length,
+            riskyPatterns: this.riskyPatterns.length,
+            lastActive: this.actions[this.actions.length - 1]?.timestamp || null
+        };
+    }
+}
+
+function initBehaviorAnalysis() {
+    window.behaviorAnalyzer = new BehaviorAnalyzer();
+}
+
+// ==================== MINI-JEU ====================
 class PhishingGame {
     constructor() {
         this.score = 0;
@@ -521,82 +692,63 @@ class PhishingGame {
         ];
         
         const legitExamples = [
-            { from: 'LinkedIn', message: 'Nouvelle offre d\'emploi', link: 'linkedin.com/jobs' },
+            { from: 'LinkedIn', message: 'Nouvelle offre', link: 'linkedin.com/jobs' },
             { from: 'Google', message: 'Code de vérification', link: 'accounts.google.com' },
-            { from: 'Microsoft', message: 'Mise à jour de sécurité', link: 'microsoft.com/security' }
+            { from: 'Microsoft', message: 'Mise à jour', link: 'microsoft.com/security' }
         ];
         
         const examples = isPhishing ? phishingExamples : legitExamples;
         const ex = examples[Math.floor(Math.random() * examples.length)];
         
-        return {
-            from: ex.from,
-            message: ex.message,
-            link: ex.link,
-            isPhishing: isPhishing
-        };
+        return ex;
     }
     
     render() {
-        const gameContainer = document.getElementById('phishingGame') || this.createGameContainer();
+        const gameContainer = document.getElementById('phishingGame');
+        if (!gameContainer) return;
+        
         gameContainer.innerHTML = `
-            <div class="game-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, var(--senegal-green), var(--senegal-red)); color: white; border-radius: 12px; margin-bottom: 1rem;">
                 <span>❤️ ${this.lives}</span>
                 <span>🎯 Score: ${this.score}</span>
                 <span>📊 Niveau: ${this.level}</span>
             </div>
-            <div class="game-grid">
+            <div style="display: grid; gap: 1rem;">
                 ${this.currentItems.map((item, index) => `
-                    <div class="game-card ${item.analyzed ? 'analyzed' : ''}" data-id="${item.id}">
-                        <div class="game-from">${item.content.from}</div>
-                        <div class="game-message">${item.content.message}</div>
-                        <div class="game-link ${item.content.isPhishing ? 'suspect' : 'safe'}">${item.content.link}</div>
+                    <div style="background: var(--card-bg); padding: 1rem; border-radius: 12px; border: 2px solid ${item.analyzed ? (item.userCorrect ? 'var(--senegal-green)' : 'var(--senegal-red)') : 'var(--light-gray)'};">
+                        <div style="font-weight: bold; color: var(--senegal-green);">${item.content.from}</div>
+                        <div style="margin: 0.5rem 0;">${item.content.message}</div>
+                        <div style="font-family: monospace; padding: 0.5rem; background: var(--light-gray); border-radius: 8px; color: ${item.content.isPhishing ? 'var(--senegal-red)' : 'var(--senegal-green)'};">${item.content.link}</div>
                         ${!item.analyzed ? `
-                            <div class="game-actions">
-                                <button class="btn-small game-phishing" data-id="${item.id}">🎣 Phishing</button>
-                                <button class="btn-small game-safe" data-id="${item.id}">✅ Légitime</button>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn-small" onclick="window.phishingGame.checkAnswer(${item.id}, true)" style="flex: 1; background: var(--senegal-red);">🎣 Phishing</button>
+                                <button class="btn-small" onclick="window.phishingGame.checkAnswer(${item.id}, false)" style="flex: 1; background: var(--senegal-green);">✅ Légitime</button>
                             </div>
                         ` : `
-                            <div class="game-result ${item.userCorrect ? 'correct' : 'incorrect'}">
-                                ${item.userCorrect ? '✅ Correct' : '❌ Faux'}
+                            <div style="text-align: center; margin-top: 0.5rem; padding: 0.5rem; background: ${item.userCorrect ? 'rgba(0,133,63,0.1)' : 'rgba(227,27,35,0.1)'}; border-radius: 8px; color: ${item.userCorrect ? 'var(--senegal-green)' : 'var(--senegal-red)'};">
+                                ${item.userCorrect ? '✅ Correct !' : '❌ Faux !'}
                             </div>
                         `}
                     </div>
                 `).join('')}
             </div>
             ${this.currentItems.every(i => i.analyzed) ? `
-                <div class="game-next">
-                    <button class="btn-primary" id="nextLevelBtn">Niveau suivant</button>
-                </div>
+                <button class="btn-primary" onclick="window.phishingGame.nextLevel()" style="margin-top: 1rem; width: 100%;">Niveau suivant</button>
             ` : ''}
         `;
-        
-        // Ajouter les événements
-        gameContainer.querySelectorAll('.game-phishing').forEach(btn => {
-            btn.addEventListener('click', (e) => this.checkAnswer(e.target.dataset.id, true));
-        });
-        
-        gameContainer.querySelectorAll('.game-safe').forEach(btn => {
-            btn.addEventListener('click', (e) => this.checkAnswer(e.target.dataset.id, false));
-        });
-        
-        const nextBtn = document.getElementById('nextLevelBtn');
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => this.nextLevel());
-        }
     }
     
     checkAnswer(itemId, guessedPhishing) {
         const item = this.currentItems.find(i => i.id == itemId);
         if (item.analyzed) return;
         
-        const correct = (guessedPhishing === item.content.isPhishing);
+        const correct = (guessedPhishing === item.isPhishing);
         item.analyzed = true;
         item.userCorrect = correct;
         
         if (correct) {
             this.score += 10;
-            window.progressSystem?.addXP(5, 'phishing_game');
+            if (window.progressSystem) window.progressSystem.addXP(5, 'game');
         } else {
             this.lives--;
         }
@@ -604,7 +756,10 @@ class PhishingGame {
         this.render();
         
         if (this.lives <= 0) {
-            this.gameOver();
+            setTimeout(() => {
+                alert(`Game Over! Score: ${this.score}`);
+                this.start();
+            }, 100);
         }
     }
     
@@ -613,481 +768,159 @@ class PhishingGame {
         this.generateItems();
         this.render();
     }
-    
-    gameOver() {
-        this.gameActive = false;
-        const gameContainer = document.getElementById('phishingGame');
-        gameContainer.innerHTML = `
-            <div class="game-over">
-                <h3>Jeu terminé !</h3>
-                <p>Score final: ${this.score}</p>
-                <p>Niveau atteint: ${this.level}</p>
-                <button class="btn-primary" id="restartGameBtn">Rejouer</button>
-            </div>
-        `;
-        
-        document.getElementById('restartGameBtn')?.addEventListener('click', () => this.start());
-        
-        if (this.score >= 50) {
-            window.progressSystem?.unlockBadge('phishing_pro');
-        }
-    }
-    
-    createGameContainer() {
-        const section = document.querySelector('#features')?.parentNode;
-        if (!section) return null;
-        
-        const gameSection = document.createElement('section');
-        gameSection.id = 'phishingGame';
-        gameSection.className = 'section alt-bg';
-        gameSection.innerHTML = '<div class="container"></div>';
-        
-        section.parentNode.insertBefore(gameSection, section.nextSibling);
-        return gameSection.querySelector('.container');
-    }
 }
 
 function initPhishingGame() {
-    const gameBtn = document.createElement('button');
-    gameBtn.className = 'btn-primary';
-    gameBtn.innerHTML = '<i class="fas fa-gamepad"></i> Jouer au mini-jeu';
-    gameBtn.style.margin = '2rem auto';
-    gameBtn.style.display = 'block';
-    
-    const features = document.getElementById('features');
-    if (features) {
-        features.querySelector('.container').appendChild(gameBtn);
-        
-        const game = new PhishingGame();
-        gameBtn.addEventListener('click', () => {
-            game.start();
-            gameBtn.style.display = 'none';
-        });
-    }
+    window.phishingGame = new PhishingGame();
 }
 
-// ==================== CLASSEMENT ET BADGES ====================
-class Leaderboard {
-    constructor() {
-        this.players = JSON.parse(localStorage.getItem('leaderboard')) || [];
-    }
-    
-    addScore(playerName, score) {
-        this.players.push({
-            name: playerName,
-            score: score,
-            level: window.progressSystem?.level || 1,
-            badges: window.progressSystem?.badges.length || 0,
-            date: new Date().toISOString()
-        });
-        
-        this.players.sort((a, b) => b.score - a.score);
-        this.players = this.players.slice(0, 50);
-        localStorage.setItem('leaderboard', JSON.stringify(this.players));
-    }
-    
-    render() {
-        const container = document.getElementById('leaderboardContainer');
-        if (!container) return;
-        
-        let html = '<h3>🏆 Top 10</h3><div class="leaderboard-list">';
-        this.players.slice(0, 10).forEach((p, i) => {
-            html += `
-                <div class="leaderboard-item ${i < 3 ? 'top-' + (i+1) : ''}">
-                    <span class="rank">#${i+1}</span>
-                    <span class="name">${p.name}</span>
-                    <span class="score">${p.score} pts</span>
-                    <span class="level">Niv.${p.level}</span>
-                </div>
-            `;
-        });
-        html += '</div>';
-        
-        container.innerHTML = html;
-    }
-}
-
+// ==================== CLASSEMENT ====================
 function initLeaderboard() {
-    const badgeContainer = document.querySelector('.badge-container');
-    if (!badgeContainer) return;
+    const container = document.getElementById('leaderboardContainer');
+    if (!container) return;
     
-    const leaderboardDiv = document.createElement('div');
-    leaderboardDiv.id = 'leaderboardContainer';
-    leaderboardDiv.className = 'leaderboard';
-    leaderboardDiv.style.marginTop = '2rem';
-    leaderboardDiv.style.padding = '1.5rem';
-    leaderboardDiv.style.background = 'var(--card-bg)';
-    leaderboardDiv.style.borderRadius = '24px';
+    const players = JSON.parse(localStorage.getItem('leaderboard')) || [
+        { name: 'Moussa', score: 250, level: 5 },
+        { name: 'Amina', score: 210, level: 4 },
+        { name: 'Omar', score: 180, level: 3 }
+    ];
     
-    badgeContainer.parentNode.insertBefore(leaderboardDiv, badgeContainer.nextSibling);
-    
-    window.leaderboard = new Leaderboard();
-    window.leaderboard.render();
+    container.innerHTML = `
+        <h3 style="text-align: center; margin-bottom: 1rem;">🏆 Top 10</h3>
+        ${players.slice(0, 10).map((p, i) => `
+            <div style="display: flex; align-items: center; padding: 0.8rem; margin: 0.3rem 0; background: var(--light-gray); border-radius: 12px; ${i === 0 ? 'border-left: 4px solid gold;' : i === 1 ? 'border-left: 4px solid silver;' : i === 2 ? 'border-left: 4px solid #cd7f32;' : ''}">
+                <span style="font-weight: bold; min-width: 40px;">#${i+1}</span>
+                <span style="flex: 1; font-weight: 600;">${p.name}</span>
+                <span style="font-weight: bold; color: var(--senegal-green); margin-right: 1rem;">${p.score} pts</span>
+                <span style="background: var(--senegal-green); color: white; padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.8rem;">Niv.${p.level}</span>
+            </div>
+        `).join('')}
+    `;
 }
 
 // ==================== VISUALISATION DE DONNÉES ====================
 function initDataVisualization() {
-    const vizContainer = document.createElement('div');
-    vizContainer.id = 'dataViz';
-    vizContainer.className = 'section';
-    vizContainer.innerHTML = `
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag">Statistiques</span>
-                <h2>Visualisation des menaces</h2>
-                <p class="section-desc">Répartition des attaques par type</p>
-            </div>
-            <canvas id="phishingChart" width="400" height="200"></canvas>
-        </div>
-    `;
+    if (typeof Chart === 'undefined') return;
     
-    const quiz = document.getElementById('quiz');
-    if (quiz) {
-        quiz.parentNode.insertBefore(vizContainer, quiz.nextSibling);
-        drawChart();
-    }
-}
-
-function drawChart() {
-    const canvas = document.getElementById('phishingChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Données simulées
-    const data = {
-        labels: ['Email', 'SMS', 'Réseaux sociaux', 'Téléphone', 'Faux sites'],
-        values: [45, 20, 25, 10, 35]
-    };
-    
-    const colors = ['#00853F', '#FCD116', '#E31B23', '#FF9800', '#9C27B0'];
-    
-    // Animation
-    let progress = 0;
-    
-    function animate() {
-        if (progress < 1) {
-            progress += 0.02;
-            drawBars(progress);
-            requestAnimationFrame(animate);
-        }
-    }
-    
-    function drawBars(progress) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const barWidth = 40;
-        const startX = 50;
-        const maxHeight = 150;
-        
-        data.values.forEach((value, i) => {
-            const height = (value * progress) * 3;
-            const x = startX + i * 60;
-            const y = canvas.height - height - 30;
-            
-            // Barre
-            ctx.fillStyle = colors[i];
-            ctx.fillRect(x, y, barWidth, height);
-            
-            // Label
-            ctx.fillStyle = 'var(--text-primary)';
-            ctx.font = '12px Inter';
-            ctx.fillText(data.labels[i], x, canvas.height - 10);
-            
-            // Valeur
-            ctx.fillStyle = colors[i];
-            ctx.font = 'bold 12px Inter';
-            ctx.fillText(value, x + 10, y - 5);
+    const attackChart = document.getElementById('attackChart');
+    if (attackChart) {
+        new Chart(attackChart, {
+            type: 'doughnut',
+            data: {
+                labels: ['Email', 'SMS', 'Réseaux', 'Téléphone', 'Faux sites'],
+                datasets: [{
+                    data: [45, 20, 25, 10, 35],
+                    backgroundColor: ['#00853F', '#FCD116', '#E31B23', '#FF9800', '#9C27B0']
+                }]
+            }
         });
     }
-    
-    animate();
 }
 
-// ==================== NOTIFICATIONS EN DIRECT ====================
-class NotificationSystem {
-    constructor() {
-        this.notifications = [];
-        this.container = this.createContainer();
-        this.permission = Notification.permission;
+// ==================== NOTIFICATIONS ====================
+function showNotification(message, type) {
+    if (window.notificationSystem) {
+        window.notificationSystem.showInApp(message, type);
     }
-    
-    createContainer() {
-        const div = document.createElement('div');
-        div.id = 'notificationContainer';
-        div.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 9999;
-            width: 300px;
-        `;
-        document.body.appendChild(div);
-        return div;
-    }
-    
-    showInApp(message, type = 'info') {
-        const id = Date.now();
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.style.cssText = `
-            background: ${type === 'success' ? 'var(--senegal-green)' : 
-                         type === 'warning' ? 'var(--senegal-yellow)' : 
-                         type === 'danger' ? 'var(--senegal-red)' : 
-                         'var(--dark-gray)'};
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            animation: slideIn 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        `;
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                ${this.getIcon(type)}
-                <div style="flex: 1;">${message}</div>
-                <i class="fas fa-times" style="opacity: 0.7;"></i>
-            </div>
-            <div class="notification-progress" style="position: absolute; bottom: 0; left: 0; height: 3px; background: rgba(255,255,255,0.5); width: 100%;"></div>
-        `;
-        
-        notification.addEventListener('click', () => notification.remove());
-        
-        this.container.appendChild(notification);
-        
-        // Barre de progression
-        const progress = notification.querySelector('.notification-progress');
-        let width = 100;
-        const interval = setInterval(() => {
-            width -= 1;
-            progress.style.width = width + '%';
-            if (width <= 0) {
-                clearInterval(interval);
-                notification.remove();
-            }
-        }, 50);
-        
-        this.notifications.push({ id, message, type });
-    }
-    
-    getIcon(type) {
-        const icons = {
-            success: '<i class="fas fa-check-circle"></i>',
-            warning: '<i class="fas fa-exclamation-triangle"></i>',
-            danger: '<i class="fas fa-times-circle"></i>',
-            info: '<i class="fas fa-info-circle"></i>'
-        };
-        return icons[type] || icons.info;
-    }
-    
-    async requestPermission() {
-        if ('Notification' in window) {
-            this.permission = await Notification.requestPermission();
-        }
-    }
-    
-    sendSystemNotification(title, options) {
-        if (this.permission === 'granted') {
-            new Notification(title, options);
-        }
-    }
-}
-
-function initNotifications() {
-    window.notificationSystem = new NotificationSystem();
-    
-    // Exemple de notification de bienvenue
-    setTimeout(() => {
-        window.notificationSystem.showInApp('👋 Bienvenue sur SafeWeb !', 'info');
-    }, 2000);
 }
 
 // ==================== BOUTON PANIQUE ====================
 function initPanicButton() {
-    const panicBtn = document.createElement('button');
-    panicBtn.id = 'panicButton';
-    panicBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-    panicBtn.title = "Bouton panique - Efface toutes les données";
-    panicBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--senegal-red);
-        color: white;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(227,27,35,0.3);
-        z-index: 9998;
-        font-size: 1.5rem;
-        transition: transform 0.3s;
-    `;
-    
-    panicBtn.addEventListener('mouseenter', () => {
-        panicBtn.style.transform = 'scale(1.1)';
-    });
-    
-    panicBtn.addEventListener('mouseleave', () => {
-        panicBtn.style.transform = 'scale(1)';
-    });
+    const panicBtn = document.getElementById('panicButton');
+    if (!panicBtn) return;
     
     panicBtn.addEventListener('click', () => {
-        if (confirm('⚠️ Attention ! Cela va effacer toutes vos données locales. Continuer ?')) {
-            activatePanicMode();
+        if (confirm('⚠️ Attention ! Cela va effacer toutes vos données. Continuer ?')) {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.cookie.split(";").forEach(c => {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            window.location.href = 'https://www.google.com';
         }
     });
-    
-    document.body.appendChild(panicBtn);
 }
 
-function activatePanicMode() {
-    // Effacer les données
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Effacer les cookies
-    document.cookie.split(";").forEach(c => {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-    
-    // Rediriger vers Google
-    window.location.href = 'https://www.google.com';
-}
-
-// ==================== ANALYSE DE COMPORTEMENT ====================
-class BehaviorAnalyzer {
-    constructor() {
-        this.actions = [];
-        this.riskyPatterns = [];
-        this.loadActions();
-    }
-    
-    loadActions() {
-        const saved = localStorage.getItem('behavior_analysis');
-        if (saved) {
-            const data = JSON.parse(saved);
-            this.actions = data.actions || [];
-            this.riskyPatterns = data.riskyPatterns || [];
-        }
-    }
-    
-    saveActions() {
-        localStorage.setItem('behavior_analysis', JSON.stringify({
-            actions: this.actions.slice(-100), // Garde les 100 dernières actions
-            riskyPatterns: this.riskyPatterns
-        }));
-    }
-    
-    trackAction(action) {
-        this.actions.push(action);
-        this.analyzeRiskyPatterns();
-        this.saveActions();
-    }
-    
-    analyzeRiskyPatterns() {
-        this.riskyPatterns = [];
-        
-        // Détecter les clics répétés sur URLs suspectes
-        const suspiciousClicks = this.actions.filter(a => 
-            a.type === 'url_check' && a.riskScore > 50
-        );
-        if (suspiciousClicks.length > 5) {
-            this.riskyPatterns.push({
-                type: 'multiple_suspicious_clicks',
-                severity: 'high',
-                count: suspiciousClicks.length,
-                recommendation: "🚨 Vous cliquez souvent sur des liens suspects. Utilisez toujours le détecteur d'abord !",
-                date: new Date().toISOString()
-            });
-        }
-        
-        // Détecter les tentatives d'injection SQL
-        const sqlAttempts = this.actions.filter(a => 
-            a.type === 'sql_test' && a.injection === true
-        );
-        if (sqlAttempts.length > 3) {
-            this.riskyPatterns.push({
-                type: 'sql_curiosity',
-                severity: 'medium',
-                count: sqlAttempts.length,
-                recommendation: "⚠️ Les injections SQL sont dangereuses en conditions réelles. Continuez à apprendre en simulation !",
-                date: new Date().toISOString()
-            });
-        }
-        
-        // Afficher les alertes
-        this.showAlerts();
-    }
-    
-    showAlerts() {
-        this.riskyPatterns.forEach(pattern => {
-            if (pattern.severity === 'high') {
-                window.notificationSystem?.showInApp(pattern.recommendation, 'danger');
-            } else if (pattern.severity === 'medium') {
-                window.notificationSystem?.showInApp(pattern.recommendation, 'warning');
-            }
-        });
-    }
-    
-    getStats() {
-        return {
-            totalActions: this.actions.length,
-            suspiciousClicks: this.actions.filter(a => a.type === 'url_check' && a.riskScore > 50).length,
-            sqlAttempts: this.actions.filter(a => a.type === 'sql_test' && a.injection).length,
-            riskyPatterns: this.riskyPatterns.length,
-            lastActive: this.actions[this.actions.length - 1]?.timestamp || null
-        };
-    }
-}
-
-function initBehaviorAnalysis() {
-    window.behaviorAnalyzer = new BehaviorAnalyzer();
-    
-    // Ajouter un bouton pour voir les statistiques
-    const statsBtn = document.createElement('button');
-    statsBtn.id = 'statsButton';
-    statsBtn.innerHTML = '<i class="fas fa-chart-line"></i> Mes stats';
-    statsBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        padding: 0.8rem 1.5rem;
-        background: var(--senegal-green);
-        color: white;
-        border: none;
-        border-radius: 30px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,133,63,0.3);
-        z-index: 9998;
-        font-weight: 600;
-        transition: transform 0.3s;
-    `;
+// ==================== BOUTON STATISTIQUES ====================
+function initStatsButton() {
+    const statsBtn = document.getElementById('statsButton');
+    if (!statsBtn) return;
     
     statsBtn.addEventListener('click', () => {
+        if (!window.behaviorAnalyzer) {
+            window.behaviorAnalyzer = new BehaviorAnalyzer();
+        }
         const stats = window.behaviorAnalyzer.getStats();
-        alert(`
-📊 Vos statistiques :
-━━━━━━━━━━━━━━━
-Actions totales: ${stats.totalActions}
-URLs suspectes: ${stats.suspiciousClicks}
-Tests SQL: ${stats.sqlAttempts}
-Alertes reçues: ${stats.riskyPatterns}
-        `);
+        
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid var(--senegal-green);
+            animation: slideDown 0.3s ease;
+        `;
+        
+        popup.innerHTML = `
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--senegal-green);"></i>
+                <h3 style="margin: 0.5rem 0;">Mes statistiques</h3>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                <div style="background: var(--light-gray); padding: 1rem; border-radius: 16px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--senegal-green);">${stats.totalActions || 0}</div>
+                    <div style="font-size: 0.85rem;">Actions</div>
+                </div>
+                <div style="background: var(--light-gray); padding: 1rem; border-radius: 16px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--senegal-green);">${stats.suspiciousClicks || 0}</div>
+                    <div style="font-size: 0.85rem;">URLs suspectes</div>
+                </div>
+                <div style="background: var(--light-gray); padding: 1rem; border-radius: 16px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--senegal-green);">${stats.sqlAttempts || 0}</div>
+                    <div style="font-size: 0.85rem;">Tests SQL</div>
+                </div>
+                <div style="background: var(--light-gray); padding: 1rem; border-radius: 16px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--senegal-green);">${window.progressSystem?.level || 1}</div>
+                    <div style="font-size: 0.85rem;">Niveau</div>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button id="closeStatsPopup" style="
+                    background: var(--senegal-green);
+                    color: white;
+                    border: none;
+                    padding: 0.8rem 2rem;
+                    border-radius: 30px;
+                    font-weight: 600;
+                    cursor: pointer;
+                ">Fermer</button>
+            </div>
+        `;
+        
+        document.body.appendChild(popup);
+        
+        document.getElementById('closeStatsPopup').addEventListener('click', () => {
+            popup.remove();
+        });
+        
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) popup.remove();
+        });
     });
-    
-    document.body.appendChild(statsBtn);
 }
 
 // ==================== CHAT SÉCURISÉ ====================
 class SecureChat {
     constructor() {
         this.messages = [];
-        this.users = new Map();
         this.isActive = false;
     }
     
@@ -1099,15 +932,13 @@ class SecureChat {
     sendMessage(text, userId = 'anonymous') {
         if (!text.trim()) return;
         
-        // Simuler une vérification de sécurité
         const isSuspicious = this.detectSuspiciousMessage(text);
         
         const message = {
             id: Date.now(),
             userId: userId,
-            text: this.encrypt(text),
-            originalText: text,
-            timestamp: new Date().toLocaleTimeString(),
+            text: text,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isSuspicious: isSuspicious
         };
         
@@ -1115,27 +946,14 @@ class SecureChat {
         this.render();
         
         if (isSuspicious) {
-            window.notificationSystem?.showInApp(
-                '⚠️ Message suspect détecté ! Ne partagez jamais d\'informations personnelles.',
-                'warning'
-            );
+            showNotification('⚠️ Message suspect détecté !', 'warning');
         }
     }
     
     detectSuspiciousMessage(text) {
         const lower = text.toLowerCase();
-        const patterns = [
-            'mot de passe', 'password', 'mdp', 'carte bleue', 'cb', 
-            'code secret', 'rib', 'compte bancaire', 'identifiant'
-        ];
+        const patterns = ['mot de passe', 'password', 'mdp', 'carte', 'cb', 'code secret', 'rib', 'compte', 'identifiant', 'login', 'email', 'argent', 'virement'];
         return patterns.some(p => lower.includes(p));
-    }
-    
-    encrypt(text) {
-        // Simulation d'encryption (juste pour l'affichage)
-        return '🔒 ' + text.split('').map(c => 
-            Math.random() > 0.5 ? c : '*'
-        ).join('');
     }
     
     render() {
@@ -1143,30 +961,30 @@ class SecureChat {
         if (!chatContainer) {
             chatContainer = document.createElement('div');
             chatContainer.id = 'secureChat';
-            chatContainer.className = 'chat-container';
-            chatContainer.style.cssText = `
-                position: fixed;
-                bottom: 90px;
-                right: 20px;
-                width: 300px;
-                height: 400px;
-                background: var(--card-bg);
-                border-radius: 20px;
-                box-shadow: var(--shadow-lg);
-                display: none;
-                flex-direction: column;
-                overflow: hidden;
-                z-index: 9997;
-            `;
             document.body.appendChild(chatContainer);
         }
         
-        chatContainer.style.display = this.isActive ? 'flex' : 'none';
+        chatContainer.style.cssText = `
+            position: fixed;
+            bottom: 230px;
+            right: 20px;
+            width: 320px;
+            height: 450px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: ${this.isActive ? 'flex' : 'none'};
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9997;
+            border: 2px solid var(--senegal-green);
+            animation: slideInRight 0.3s ease;
+        `;
         
         if (!this.isActive) return;
         
         chatContainer.innerHTML = `
-            <div class="chat-header" style="
+            <div style="
                 background: var(--senegal-green);
                 color: white;
                 padding: 1rem;
@@ -1174,56 +992,86 @@ class SecureChat {
                 justify-content: space-between;
                 align-items: center;
             ">
-                <span><i class="fas fa-shield"></i> Chat sécurisé</span>
-                <button id="closeChat" style="background: none; border: none; color: white; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-shield"></i>
+                    <span style="font-weight: 600;">Chat sécurisé</span>
+                </div>
+                <button id="closeChat" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="chat-messages" style="
+            <div id="chatMessages" style="
                 flex: 1;
                 padding: 1rem;
                 overflow-y: auto;
+                background: var(--light-gray);
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
             ">
-                ${this.messages.map(m => `
-                    <div class="message ${m.userId === 'me' ? 'own' : ''}" style="
+                ${this.messages.length === 0 ? `
+                    <div style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                        <i class="fas fa-comment-dots" style="font-size: 2rem; opacity: 0.5;"></i>
+                        <p>Aucun message</p>
+                    </div>
+                ` : this.messages.map(m => `
+                    <div style="
                         align-self: ${m.userId === 'me' ? 'flex-end' : 'flex-start'};
-                        background: ${m.userId === 'me' ? 'var(--senegal-green)' : 'var(--light-gray)'};
-                        color: ${m.userId === 'me' ? 'white' : 'var(--text-primary)'};
-                        padding: 0.5rem 1rem;
-                        border-radius: 15px;
                         max-width: 80%;
-                        ${m.isSuspicious ? 'border: 2px solid var(--senegal-red);' : ''}
                     ">
-                        <div class="message-text">${m.isSuspicious ? '⚠️ ' : ''}${m.text}</div>
-                        <div class="message-time" style="font-size: 0.7rem; opacity: 0.7;">${m.timestamp}</div>
+                        <div style="
+                            background: ${m.userId === 'me' ? 'var(--senegal-green)' : 'var(--card-bg)'};
+                            color: ${m.userId === 'me' ? 'white' : 'var(--text-primary)'};
+                            padding: 0.5rem 1rem;
+                            border-radius: 18px;
+                            ${m.userId === 'me' ? 'border-bottom-right-radius: 4px;' : 'border-bottom-left-radius: 4px;'}
+                            ${m.isSuspicious ? 'border: 2px solid var(--senegal-red);' : ''}
+                        ">
+                            ${m.isSuspicious ? '⚠️ ' : ''}${m.text}
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem; text-align: ${m.userId === 'me' ? 'right' : 'left'};">
+                            ${m.timestamp}
+                        </div>
                     </div>
                 `).join('')}
             </div>
-            <div class="chat-input" style="
+            <div style="
                 padding: 1rem;
                 border-top: 1px solid var(--light-gray);
                 display: flex;
                 gap: 0.5rem;
+                background: var(--card-bg);
             ">
                 <input type="text" id="chatInput" placeholder="Votre message..." style="
                     flex: 1;
-                    padding: 0.5rem;
+                    padding: 0.8rem;
                     border: 2px solid var(--light-gray);
-                    border-radius: 20px;
-                    background: var(--card-bg);
+                    border-radius: 24px;
+                    background: var(--light-gray);
                     color: var(--text-primary);
                 ">
                 <button id="sendChatMessage" style="
-                    width: 40px;
-                    height: 40px;
+                    width: 45px;
+                    height: 45px;
                     border-radius: 50%;
                     background: var(--senegal-green);
                     color: white;
                     border: none;
                     cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 ">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -1235,26 +1083,115 @@ class SecureChat {
             chatContainer.style.display = 'none';
         });
         
-        document.getElementById('sendChatMessage')?.addEventListener('click', () => {
-            const input = document.getElementById('chatInput');
-            this.sendMessage(input.value, 'me');
-            input.value = '';
-        });
+        const sendBtn = document.getElementById('sendChatMessage');
+        const input = document.getElementById('chatInput');
         
-        // Auto-scroll
-        const messagesDiv = chatContainer.querySelector('.chat-messages');
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        if (sendBtn && input) {
+            sendBtn.addEventListener('click', () => {
+                this.sendMessage(input.value, 'me');
+                input.value = '';
+            });
+            
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendMessage(input.value, 'me');
+                    input.value = '';
+                }
+            });
+        }
+        
+        const messagesDiv = document.getElementById('chatMessages');
+        if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 }
 
-function initSecureChat() {
-    const chatBtn = document.createElement('button');
-    chatBtn.id = 'chatButton';
-    chatBtn.innerHTML = '<i class="fas fa-comment"></i>';
-    chatBtn.title = "Chat sécurisé (simulation)";
-    chatBtn.style.cssText = `
+function initChatButton() {
+    const chatBtn = document.getElementById('chatButton');
+    if (!chatBtn) return;
+    
+    let chat = null;
+    
+    chatBtn.addEventListener('click', () => {
+        if (!chat) {
+            chat = new SecureChat();
+        }
+        
+        const existingChat = document.getElementById('secureChat');
+        if (existingChat && existingChat.style.display !== 'none') {
+            existingChat.style.display = 'none';
+            chat.isActive = false;
+        } else {
+            chat.start();
+        }
+    });
+}
+
+// ==================== BOUTON RETOUR EN HAUT ====================
+function initBackToTop() {
+    const backToTopBtn = document.getElementById('backToTop');
+    if (!backToTopBtn) return;
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('visible');
+        } else {
+            backToTopBtn.classList.remove('visible');
+        }
+    });
+    
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// ==================== GESTIONNAIRE DE CERTIFICAT ====================
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'generateCertBtn' || e.target.closest('#generateCertBtn')) {
+        const certBtn = document.getElementById('generateCertBtn');
+        if (!certBtn || certBtn.disabled) return;
+        
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            alert('Bibliothèque jsPDF non chargée');
+            return;
+        }
+        
+        const doc = new jsPDF();
+        const name = document.getElementById('userName')?.value.trim() || 'Utilisateur SafeWeb';
+        
+        doc.setFillColor(0,133,63); doc.rect(0,0,210,40,'F');
+        doc.setFillColor(252,209,22); doc.rect(0,40,210,20,'F');
+        doc.setFillColor(227,27,35); doc.rect(0,60,210,20,'F');
+        doc.setTextColor(255,255,255); doc.setFontSize(26); doc.text('SafeWeb',70,30);
+        doc.setTextColor(0,0,0); doc.setFontSize(20); doc.text('Certificat de sensibilisation',40,90);
+        doc.setFontSize(16); doc.text(`Décerné à : ${name}`,40,120);
+        doc.text(`Score : ${score || 0}/8`,40,140);
+        doc.save('certificat_safeweb.pdf');
+    }
+});
+
+// ==================== STYLES DYNAMIQUES ====================
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideDown {
+        from { transform: translate(-50%, -100%); opacity: 0; }
+        to { transform: translate(-50%, -50%); opacity: 1; }
+    }
+    @keyframes fadeOut {
+        0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    .back-to-top {
         position: fixed;
-        bottom: 90px;
+        bottom: 20px;
         right: 20px;
         width: 50px;
         height: 50px;
@@ -1263,323 +1200,19 @@ function initSecureChat() {
         color: white;
         border: none;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,133,63,0.3);
-        z-index: 9997;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.3s;
         font-size: 1.2rem;
-        transition: transform 0.3s;
-    `;
-    
-    const chat = new SecureChat();
-    
-    chatBtn.addEventListener('click', () => {
-        chat.start();
-    });
-    
-    document.body.appendChild(chatBtn);
-}
-
-// ==================== NFT DE SENSIBILISATION ====================
-class SecurityNFT {
-    constructor() {
-        this.nfts = JSON.parse(localStorage.getItem('safeweb_nfts')) || [];
-    }
-    
-    mintNFT(achievement) {
-        const nft = {
-            id: this.generateId(),
-            achievement: achievement,
-            metadata: {
-                name: this.getNFTName(achievement),
-                description: this.getNFTDescription(achievement),
-                image: this.generateImage(achievement),
-                attributes: this.getAttributes(achievement),
-                date: new Date().toISOString(),
-                level: window.progressSystem?.level || 1
-            }
-        };
-        
-        this.nfts.push(nft);
-        localStorage.setItem('safeweb_nfts', JSON.stringify(this.nfts));
-        
-        this.showNFTCelebration(nft);
-        return nft;
-    }
-    
-    generateId() {
-        return 'NFT-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    }
-    
-    getNFTName(achievement) {
-        const names = {
-            'first_quiz': 'Premier pas en cybersécurité',
-            'perfect_score': 'Maître du quiz',
-            'phishing_hunter': 'Chasseur de phishing',
-            'sql_master': 'Expert SQL',
-            'level_5': 'Gardien niveau 5',
-            'level_10': 'Légende vivante'
-        };
-        return names[achievement] || 'Collectionneur SafeWeb';
-    }
-    
-    getNFTDescription(achievement) {
-        const desc = {
-            'first_quiz': 'A complété son premier quiz de sensibilisation',
-            'perfect_score': 'A obtenu un score parfait au quiz',
-            'phishing_hunter': 'A détecté 10 tentatives de phishing',
-            'sql_master': 'Maîtrise les concepts d\'injection SQL',
-            'level_5': 'A atteint le niveau 5 sur SafeWeb',
-            'level_10': 'Membre d\'élite de la communauté SafeWeb'
-        };
-        return desc[achievement] || 'NFT commémoratif SafeWeb';
-    }
-    
-    generateImage(achievement) {
-        // Simule la génération d'une image SVG unique
-        const colors = ['#00853F', '#FCD116', '#E31B23'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        
-        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23${randomColor.substr(1)}'/%3E%3Ctext x='20' y='100' fill='white' font-size='20'%3E${achievement}%3C/text%3E%3C/svg%3E`;
-    }
-    
-    getAttributes(achievement) {
-        return [
-            { trait_type: 'Achievement', value: achievement },
-            { trait_type: 'Level', value: window.progressSystem?.level || 1 },
-            { trait_type: 'Badges', value: window.progressSystem?.badges.length || 0 }
-        ];
-    }
-    
-    showNFTCelebration(nft) {
-        const celebration = document.createElement('div');
-        celebration.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, var(--senegal-green), var(--senegal-yellow));
-            color: white;
-            padding: 2rem;
-            border-radius: 50px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            z-index: 10000;
-            animation: slideDown 0.5s ease;
-        `;
-        celebration.innerHTML = `
-            <i class="fas fa-crown" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-            <h3>🎉 NFT Débloqué !</h3>
-            <p><strong>${nft.metadata.name}</strong></p>
-            <p style="font-size: 0.9rem; opacity: 0.9;">${nft.metadata.description}</p>
-            <img src="${nft.metadata.image}" style="width: 100px; height: 100px; margin: 1rem auto; border-radius: 20px;">
-            <button id="closeNFTCelebration" style="
-                background: white;
-                color: var(--senegal-green);
-                border: none;
-                padding: 0.5rem 2rem;
-                border-radius: 30px;
-                margin-top: 1rem;
-                cursor: pointer;
-                font-weight: bold;
-            ">Collectionner</button>
-        `;
-        
-        document.body.appendChild(celebration);
-        
-        document.getElementById('closeNFTCelebration')?.addEventListener('click', () => {
-            celebration.remove();
-        });
-        
-        setTimeout(() => celebration.remove(), 5000);
-    }
-    
-    render() {
-        let container = document.getElementById('nftContainer');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'nftContainer';
-            container.className = 'nft-grid';
-            container.style.cssText = `
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 1rem;
-                margin: 2rem 0;
-            `;
-            
-            const footer = document.querySelector('footer');
-            if (footer) {
-                footer.parentNode.insertBefore(container, footer);
-            }
-        }
-        
-        container.innerHTML = this.nfts.map(nft => `
-            <div class="nft-card" style="
-                background: var(--card-bg);
-                border-radius: 16px;
-                padding: 1rem;
-                text-align: center;
-                box-shadow: var(--shadow-md);
-                border: 1px solid var(--light-gray);
-            ">
-                <img src="${nft.metadata.image}" style="width: 100%; border-radius: 12px; margin-bottom: 0.5rem;">
-                <h4 style="font-size: 1rem; margin-bottom: 0.3rem;">${nft.metadata.name}</h4>
-                <p style="font-size: 0.8rem; opacity: 0.7;">${new Date(nft.metadata.date).toLocaleDateString()}</p>
-            </div>
-        `).join('');
-    }
-}
-
-function initSecurityNFT() {
-    window.securityNFT = new SecurityNFT();
-    
-    // Débloquer des NFTs en fonction des actions
-    document.addEventListener('quizCompleted', (e) => {
-        if (e.detail.score === 100) {
-            window.securityNFT.mintNFT('perfect_score');
-        }
-    });
-    
-    // Afficher la collection
-    setTimeout(() => {
-        window.securityNFT.render();
-    }, 1000);
-}
-
-// ==================== FONCTIONS UTILITAIRES ====================
-
-function showNotification(message, type = 'info') {
-    if (window.notificationSystem) {
-        window.notificationSystem.showInApp(message, type);
-    } else {
-        alert(message);
-    }
-}
-
-// Styles CSS pour les animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideDown {
-        from { transform: translate(-50%, -100%); opacity: 0; }
-        to { transform: translate(-50%, -50%); opacity: 1; }
-    }
-    
-    @keyframes fadeOut {
-        0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-    }
-    
-    .game-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1rem;
-        margin: 1.5rem 0;
-    }
-    
-    .game-card {
-        background: var(--card-bg);
-        padding: 1.2rem;
-        border-radius: 16px;
-        box-shadow: var(--shadow-md);
-        transition: transform 0.3s;
-    }
-    
-    .game-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .game-from {
-        font-weight: bold;
-        color: var(--senegal-green);
-    }
-    
-    .game-link {
-        margin: 0.8rem 0;
-        padding: 0.5rem;
-        border-radius: 8px;
-        background: var(--light-gray);
-        word-break: break-all;
-    }
-    
-    .game-link.suspect {
-        border-left: 4px solid var(--senegal-red);
-    }
-    
-    .game-link.safe {
-        border-left: 4px solid var(--senegal-green);
-    }
-    
-    .game-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-    
-    .game-result {
-        text-align: center;
-        padding: 0.5rem;
-        border-radius: 8px;
-        font-weight: bold;
-    }
-    
-    .game-result.correct {
-        background: #00853f20;
-        color: var(--senegal-green);
-    }
-    
-    .game-result.incorrect {
-        background: #e31b2320;
-        color: var(--senegal-red);
-    }
-    
-    .leaderboard-item {
         display: flex;
         align-items: center;
-        padding: 0.8rem;
-        margin: 0.3rem 0;
-        background: var(--light-gray);
-        border-radius: 12px;
-        gap: 0.5rem;
+        justify-content: center;
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
     }
-    
-    .leaderboard-item.top-1 {
-        background: linear-gradient(90deg, #ffd70020, var(--light-gray));
-        border-left: 4px solid gold;
-    }
-    
-    .leaderboard-item.top-2 {
-        border-left: 4px solid silver;
-    }
-    
-    .leaderboard-item.top-3 {
-        border-left: 4px solid #cd7f32;
-    }
-    
-    .rank {
-        font-weight: bold;
-        min-width: 40px;
-    }
-    
-    .name {
-        flex: 1;
-        font-weight: 500;
-    }
-    
-    .score {
-        font-weight: bold;
-        color: var(--senegal-green);
-    }
-    
-    .level {
-        background: var(--senegal-green);
-        color: white;
-        padding: 0.2rem 0.5rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
+    .back-to-top.visible {
+        opacity: 1;
+        pointer-events: auto;
     }
 `;
-
 document.head.appendChild(style);
