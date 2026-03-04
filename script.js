@@ -34,6 +34,19 @@ function initAOS() {
     }
 }
 
+// ==================== VÉRIFICATION AU CHARGEMENT ====================
+console.log('✅ Script chargé avec succès');
+window.addEventListener('load', function() {
+    console.log('✅ Page complètement chargée');
+    
+    // Vérifier les éléments importants
+    const gameContainer = document.getElementById('phishingGame');
+    console.log('Conteneur du jeu:', gameContainer ? '✅ trouvé' : '❌ manquant');
+    
+    const videos = document.querySelectorAll('iframe');
+    console.log('Vidéos trouvées:', videos.length);
+});
+
 // ==================== MENU MOBILE ====================
 function initMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
@@ -649,7 +662,7 @@ function initBehaviorAnalysis() {
     window.behaviorAnalyzer = new BehaviorAnalyzer();
 }
 
-// ==================== MINI-JEU ====================
+// ==================== MINI-JEU CORRIGÉ ====================
 class PhishingGame {
     constructor() {
         this.score = 0;
@@ -657,6 +670,7 @@ class PhishingGame {
         this.level = 1;
         this.currentItems = [];
         this.gameActive = false;
+        this.container = document.getElementById('phishingGame');
     }
     
     start() {
@@ -678,69 +692,144 @@ class PhishingGame {
                 id: i,
                 isPhishing: isPhishing,
                 content: this.generateContent(isPhishing),
-                analyzed: false
+                analyzed: false,
+                userCorrect: false
             });
         }
     }
     
     generateContent(isPhishing) {
         const phishingExamples = [
-            { from: 'Sécurité PayPal', message: 'Votre compte sera suspendu', link: 'paypal-verif.tk' },
-            { from: 'Support Amazon', message: 'Problème de paiement', link: 'amazon-update.xyz' },
-            { from: 'Banque Postale', message: 'Virement en attente', link: 'banque-secure.cf' },
-            { from: 'Instagram', message: 'Connexion suspecte', link: 'instagram-login.ml' }
+            { from: 'Sécurité PayPal', message: 'Votre compte sera suspendu dans 24h', link: 'paypal-verification.tk' },
+            { from: 'Support Amazon', message: 'Problème de paiement - Cliquez pour régulariser', link: 'amazon-update.xyz' },
+            { from: 'Banque Postale', message: 'Virement de 1500€ en attente', link: 'banque-secure-login.cf' },
+            { from: 'Instagram', message: 'Connexion suspecte depuis un nouvel appareil', link: 'instagram-verification.ml' },
+            { from: 'Facebook', message: 'Votre page sera désactivée', link: 'facebook-security-login.ga' }
         ];
         
         const legitExamples = [
-            { from: 'LinkedIn', message: 'Nouvelle offre', link: 'linkedin.com/jobs' },
-            { from: 'Google', message: 'Code de vérification', link: 'accounts.google.com' },
-            { from: 'Microsoft', message: 'Mise à jour', link: 'microsoft.com/security' }
+            { from: 'LinkedIn', message: 'Nouvelle offre d\'emploi pour vous', link: 'linkedin.com/jobs/123' },
+            { from: 'Google', message: 'Code de vérification: 123456', link: 'accounts.google.com' },
+            { from: 'Microsoft', message: 'Mise à jour de sécurité disponible', link: 'microsoft.com/security' },
+            { from: 'Twitter', message: 'Nouveau follower: @user123', link: 'twitter.com/user123' },
+            { from: 'YouTube', message: 'Nouvelle vidéo de votre abonnement', link: 'youtube.com/watch?v=123' }
         ];
         
         const examples = isPhishing ? phishingExamples : legitExamples;
-        const ex = examples[Math.floor(Math.random() * examples.length)];
-        
-        return ex;
+        return examples[Math.floor(Math.random() * examples.length)];
     }
     
     render() {
-        const gameContainer = document.getElementById('phishingGame');
-        if (!gameContainer) return;
+        if (!this.container) {
+            this.container = document.getElementById('phishingGame');
+            if (!this.container) {
+                // Créer le conteneur si il n'existe pas
+                const gameSection = document.createElement('div');
+                gameSection.id = 'phishingGame';
+                gameSection.className = 'phishing-game';
+                gameSection.style.cssText = 'padding: 1rem;';
+                
+                const targetSection = document.getElementById('game') || document.querySelector('.section.alt-bg');
+                if (targetSection) {
+                    targetSection.querySelector('.container')?.appendChild(gameSection);
+                    this.container = gameSection;
+                } else {
+                    return;
+                }
+            }
+        }
         
-        gameContainer.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, var(--senegal-green), var(--senegal-red)); color: white; border-radius: 12px; margin-bottom: 1rem;">
-                <span>❤️ ${this.lives}</span>
-                <span>🎯 Score: ${this.score}</span>
-                <span>📊 Niveau: ${this.level}</span>
+        if (!this.gameActive) {
+            this.container.innerHTML = `
+                <div style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-gamepad" style="font-size: 4rem; color: var(--senegal-green); margin-bottom: 1rem;"></i>
+                    <h3>Prêt à jouer ?</h3>
+                    <p>Identifiez les messages de phishing pour gagner des points !</p>
+                    <button class="btn-primary" onclick="window.phishingGame.start()" style="margin-top: 1rem;">
+                        <i class="fas fa-play"></i> Commencer le jeu
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        if (this.lives <= 0) {
+            this.gameActive = false;
+            this.container.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-skull" style="font-size: 4rem; color: var(--senegal-red); margin-bottom: 1rem;"></i>
+                    <h3>Game Over !</h3>
+                    <p style="font-size: 1.5rem; font-weight: bold; color: var(--senegal-green);">Score: ${this.score}</p>
+                    <p>Niveau atteint: ${this.level}</p>
+                    <button class="btn-primary" onclick="window.phishingGame.start()" style="margin-top: 1rem;">
+                        <i class="fas fa-redo"></i> Rejouer
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = `
+            <div style="background: linear-gradient(135deg, var(--senegal-green), var(--senegal-red)); color: white; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-heart" style="color: white;"></i>
+                    <span>${this.lives}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-star"></i>
+                    <span>${this.score} pts</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-level-up-alt"></i>
+                    <span>Niveau ${this.level}</span>
+                </div>
             </div>
             <div style="display: grid; gap: 1rem;">
-                ${this.currentItems.map((item, index) => `
-                    <div style="background: var(--card-bg); padding: 1rem; border-radius: 12px; border: 2px solid ${item.analyzed ? (item.userCorrect ? 'var(--senegal-green)' : 'var(--senegal-red)') : 'var(--light-gray)'};">
-                        <div style="font-weight: bold; color: var(--senegal-green);">${item.content.from}</div>
-                        <div style="margin: 0.5rem 0;">${item.content.message}</div>
-                        <div style="font-family: monospace; padding: 0.5rem; background: var(--light-gray); border-radius: 8px; color: ${item.content.isPhishing ? 'var(--senegal-red)' : 'var(--senegal-green)'};">${item.content.link}</div>
-                        ${!item.analyzed ? `
-                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                                <button class="btn-small" onclick="window.phishingGame.checkAnswer(${item.id}, true)" style="flex: 1; background: var(--senegal-red);">🎣 Phishing</button>
-                                <button class="btn-small" onclick="window.phishingGame.checkAnswer(${item.id}, false)" style="flex: 1; background: var(--senegal-green);">✅ Légitime</button>
-                            </div>
-                        ` : `
-                            <div style="text-align: center; margin-top: 0.5rem; padding: 0.5rem; background: ${item.userCorrect ? 'rgba(0,133,63,0.1)' : 'rgba(227,27,35,0.1)'}; border-radius: 8px; color: ${item.userCorrect ? 'var(--senegal-green)' : 'var(--senegal-red)'};">
-                                ${item.userCorrect ? '✅ Correct !' : '❌ Faux !'}
-                            </div>
-                        `}
-                    </div>
-                `).join('')}
-            </div>
-            ${this.currentItems.every(i => i.analyzed) ? `
-                <button class="btn-primary" onclick="window.phishingGame.nextLevel()" style="margin-top: 1rem; width: 100%;">Niveau suivant</button>
-            ` : ''}
         `;
+        
+        this.currentItems.forEach(item => {
+            html += `
+                <div style="background: var(--card-bg); padding: 1.2rem; border-radius: 16px; border: 2px solid ${item.analyzed ? (item.userCorrect ? 'var(--senegal-green)' : 'var(--senegal-red)') : 'var(--light-gray)'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: bold; color: var(--senegal-green);">${item.content.from}</span>
+                        ${item.analyzed ? `<span style="font-size: 0.8rem; padding: 0.2rem 0.5rem; background: ${item.userCorrect ? 'rgba(0,133,63,0.1)' : 'rgba(227,27,35,0.1)'}; color: ${item.userCorrect ? 'var(--senegal-green)' : 'var(--senegal-red)'}; border-radius: 20px;">${item.userCorrect ? '✓ Correct' : '✗ Faux'}</span>` : ''}
+                    </div>
+                    <p style="margin: 0.5rem 0; color: var(--text-primary);">${item.content.message}</p>
+                    <div style="font-family: monospace; padding: 0.8rem; background: var(--light-gray); border-radius: 8px; color: ${item.content.isPhishing ? 'var(--senegal-red)' : 'var(--senegal-green)'}; word-break: break-all; margin: 0.5rem 0;">
+                        ${item.content.link}
+                    </div>
+                    ${!item.analyzed ? `
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button onclick="window.phishingGame.checkAnswer(${item.id}, true)" style="flex: 1; padding: 0.8rem; background: var(--senegal-red); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                                <i class="fas fa-fish"></i> Phishing
+                            </button>
+                            <button onclick="window.phishingGame.checkAnswer(${item.id}, false)" style="flex: 1; padding: 0.8rem; background: var(--senegal-green); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                                <i class="fas fa-check"></i> Légitime
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        
+        if (this.currentItems.every(i => i.analyzed)) {
+            html += `
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button onclick="window.phishingGame.nextLevel()" class="btn-primary" style="width: 100%;">
+                        <i class="fas fa-arrow-right"></i> Niveau suivant
+                    </button>
+                </div>
+            `;
+        }
+        
+        this.container.innerHTML = html;
     }
     
     checkAnswer(itemId, guessedPhishing) {
-        const item = this.currentItems.find(i => i.id == itemId);
-        if (item.analyzed) return;
+        const item = this.currentItems.find(i => i.id === itemId);
+        if (!item || item.analyzed) return;
         
         const correct = (guessedPhishing === item.isPhishing);
         item.analyzed = true;
@@ -748,18 +837,21 @@ class PhishingGame {
         
         if (correct) {
             this.score += 10;
-            if (window.progressSystem) window.progressSystem.addXP(5, 'game');
+            if (window.progressSystem) {
+                window.progressSystem.addXP(5, 'game');
+            }
+            showNotification('✅ Bonne réponse ! +10 points', 'success');
         } else {
             this.lives--;
+            showNotification('❌ Mauvaise réponse ! -1 vie', 'danger');
         }
         
         this.render();
         
         if (this.lives <= 0) {
             setTimeout(() => {
-                alert(`Game Over! Score: ${this.score}`);
-                this.start();
-            }, 100);
+                showNotification(`🏆 Partie terminée ! Score: ${this.score}`, 'info');
+            }, 500);
         }
     }
     
@@ -767,7 +859,14 @@ class PhishingGame {
         this.level++;
         this.generateItems();
         this.render();
+        showNotification(`🎉 Niveau ${this.level} !`, 'success');
     }
+}
+
+function initPhishingGame() {
+    window.phishingGame = new PhishingGame();
+    // Afficher l'écran d'accueil
+    window.phishingGame.render();
 }
 
 function initPhishingGame() {
